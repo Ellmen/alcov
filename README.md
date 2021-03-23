@@ -3,7 +3,7 @@
 Analysis of SARS-CoV-2 mutations. The tool can be used for:
 
 * The tool can be used for converting nucleotide and amino acid mutations for SARS-CoV-2 such as those found on https://covariants.org/variants/S.N501
-* Determining the frequency of mutations of interest in mapped WGS reads in BED files. Currently looks for N501Y and A28271- from https://www.medrxiv.org/content/10.1101/2021.02.22.21252041v1.full.pdf
+* Determining the frequency of mutations of interest in mapped WGS reads in BAM files. Currently looks for N501Y and A28271- from https://www.medrxiv.org/content/10.1101/2021.02.22.21252041v1.full.pdf
 
 ## Installing
 
@@ -24,7 +24,7 @@ $ cov_breakdown aa S:E484K
 G23012A causes S:E484K
 ```
 
-Finding mutations in BED file:
+Finding mutations in BAM file:
 
 ```
 cov_breakdown find_mutants reads.bam
