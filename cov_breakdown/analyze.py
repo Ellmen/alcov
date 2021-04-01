@@ -1,10 +1,15 @@
 import pysam
 
+from .convert_mutations import aa, nt
 
-# TODO: Parse amino acid mutations
+
 b117_mutations = [
     'A28271-',
-    'A23063T'
+]
+
+b117_aa_mutations = [
+    'S:N501Y',
+    'S:A570D'
 ]
 
 
@@ -39,8 +44,11 @@ def mut_in_col(pileupcolumn, mut):
 
 def print_mut_result(mut_result):
     name, muts, not_muts = mut_result
-    print(name)
     new_base = name[-1]
+    if new_base == '-':
+        print('{}:'.format(name))
+    else:
+        print('{} ({}):'.format(name, nt(name)))
     total = muts + not_muts
     if total == 0:
         print('No coverage of {}'.format(name))
@@ -54,13 +62,10 @@ def print_mut_result(mut_result):
         ))
 
 
-def find_mutants(bam_path, mutations=b117_mutations):
+def find_mutants(bam_path):
+    mutations = b117_mutations + sum([aa(mut) for mut in b117_aa_mutations], [])
     samfile = pysam.Samfile(bam_path, "rb")
 
-    dels = 0
-    not_dels = 0
-    snps = 0
-    not_snps = 0
     parsed_muts = [parse_snv(mut) for mut in mutations]
     mut_results = [] # TODO: fill with 0s so uncovered mutations are still printed
 

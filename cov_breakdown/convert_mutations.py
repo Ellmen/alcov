@@ -3,8 +3,6 @@ import re
 from .sars_cov_2 import genes, seq
 
 
-# TODO: Use convert_mutations implementation
-
 codons = { 
     'ATA':'I', 'ATC':'I', 'ATT':'I', 'ATG':'M', 
     'ACA':'T', 'ACC':'T', 'ACG':'T', 'ACT':'T', 
@@ -34,18 +32,21 @@ def aa(mut):
     nt_idx = genes[gene][0] + (aa_idx - 1) * 3
     codon = seq[nt_idx:nt_idx+3]
     acid = codons[codon]
+    nt_muts = []
 
     for i in range(4):
         if codons[nts[i] + codon[1] + codon[2]] == new_acid:
-            print('{}{}{} causes {}'.format(codon[0], nt_idx + 1, nts[i], mut))
+            nt_muts.append('{}{}{}'.format(codon[0], nt_idx + 1, nts[i]))
 
     for i in range(4):
         if codons[codon[0] + nts[i] + codon[2]] == new_acid:
-            print('{}{}{} causes {}'.format(codon[1], nt_idx + 2, nts[i], mut))
+            nt_muts.append('{}{}{}'.format(codon[1], nt_idx + 2, nts[i]))
 
     for i in range(4):
         if codons[codon[0] + codon[1] + nts[i]] == new_acid:
-            print('{}{}{} causes {}'.format(codon[2], nt_idx + 3, nts[i], mut))
+            nt_muts.append('{}{}{}'.format(codon[2], nt_idx + 3, nts[i]))
+
+    return nt_muts
 
 
 def nt(mut):
@@ -63,5 +64,5 @@ def nt(mut):
             acid = codons[''.join(codon)]
             codon[nt_offset] = new_base
             new_acid = codons[''.join(codon)]
-            print('{} causes {}:{}{}{}'.format(mut, gene, acid, aa_idx, new_acid))
+            return '{}:{}{}{}'.format(gene, acid, aa_idx, new_acid)
 
