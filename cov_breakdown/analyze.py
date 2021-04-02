@@ -1,15 +1,17 @@
-import pysam
-
 from .convert_mutations import aa, nt
 
 
 b117_mutations = [
     'A28271-',
+    'G28280C',
+    'A28281T',
+    'T28282A',
 ]
 
 b117_aa_mutations = [
     'S:N501Y',
-    'S:A570D'
+    # 'S:A570D',
+    # 'S:E484K'
 ]
 
 
@@ -42,40 +44,98 @@ def mut_in_col(pileupcolumn, mut):
     return muts, not_muts
 
 
-def print_mut_result(mut_result):
-    name, muts, not_muts = mut_result
-    new_base = name[-1]
-    if new_base == '-':
-        print('{}:'.format(name))
-    else:
-        print('{} ({}):'.format(name, nt(name)))
-    total = muts + not_muts
-    if total == 0:
-        print('No coverage of {}'.format(name))
-    else:
-        print('{} are {}, {} are wildtype ({:.2f}% of {} total)'.format(
-            muts,
-            new_base,
-            not_muts,
-            muts/total*100,
-            total
-        ))
+def print_mut_results(mut_results):
+    for name in mut_results:
+        muts, not_muts = mut_results[name]
+        new_base = name[-1]
+        if new_base == '-':
+            print('{}:'.format(name))
+        else:
+            print('{} ({}):'.format(name, nt(name)))
+        total = muts + not_muts
+        if total == 0:
+            print('No coverage of {}'.format(name))
+        else:
+            print('{} are {}, {} are wildtype ({:.2f}% of {} total)'.format(
+                muts,
+                new_base,
+                not_muts,
+                muts/total*100,
+                total
+            ))
 
 
-def find_mutants(bam_path):
+def plot_mutations(sample_results, sample_names):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import seaborn as sns; sns.set_theme()
+    names = sample_results[0].keys()
+    sample_counts = [[mut_results[mut] for mut in names] for mut_results in sample_results]
+    num_mutations = len(names)
+    mut_fractions = [[] for _ in range(num_mutations)]
+    min_reads = 5
+    for i in range(num_mutations):
+        for counts in sample_counts:
+            count = counts[i]
+            total = count[0] + count[1]
+            fraction = count[0]/total if total >= min_reads else -1
+            mut_fractions[i].append(fraction)
+    no_reads = np.array([[f == -1 for f in fractions] for fractions in mut_fractions])
+    ax = sns.heatmap(
+        mut_fractions,
+        annot=True,
+        mask=no_reads,
+        cmap=sns.cm.rocket_r,
+        xticklabels=sample_names,
+        yticklabels=names,
+        vmin=0,
+        vmax=1
+    )
+    plt.xlabel('Sample')
+    plt.ylabel('Mutation')
+    plt.show()
+
+
+def find_mutants_in_bam(bam_path):
+    import pysam
+
     mutations = b117_mutations + sum([aa(mut) for mut in b117_aa_mutations], [])
     samfile = pysam.Samfile(bam_path, "rb")
 
     parsed_muts = [parse_snv(mut) for mut in mutations]
-    mut_results = [] # TODO: fill with 0s so uncovered mutations are still printed
+    mut_results = {mut: [0,0] for mut in mutations}
 
     for pileupcolumn in samfile.pileup():
         pos = pileupcolumn.pos + 1
         for m in parsed_muts:
             if pos == m[1]:
                 muts, not_muts = mut_in_col(pileupcolumn, m[2])
-                mut_results.append(['{}{}{}'.format(m[0], m[1], m[2]), muts, not_muts])
+                mut_results['{}{}{}'.format(m[0], m[1], m[2])] = [muts, not_muts]
     samfile.close()
 
-    for result in mut_results:
-        print_mut_result(result)
+    print_mut_results(mut_results)
+
+    return mut_results
+
+
+def find_mutants(file_path):
+    """
+    Accepts either a bam file or a tab delimited  txt file like
+    s1.bam  Sample 1
+    s2.bam  Sample 2
+    """
+    sample_results = []
+    sample_names = []
+    if file_path.endswith('.bam'):
+        sample_results.append(find_mutants_in_bam(file_path))
+        sample_names.append('')
+    else:
+        with open(file_path, 'r') as f:
+            samples = [line.split('\t') for line in f.read().split('\n')]
+        for sample in samples:
+            if sample[0].endswith('.bam'): # Mostly for filtering empty
+                print('{}:'.format(sample[1]))
+                sample_results.append(find_mutants_in_bam(sample[0]))
+                sample_names.append(sample[1])
+                print()
+    plot_mutations(sample_results, sample_names)

@@ -14,5 +14,5 @@ class CovBreakdown(object):
     def nt(self, mut):
         nt(mut)
 
-    def find_mutants(self, bam_path):
-        find_mutants(bam_path)
+    def find_mutants(self, file_path):
+        find_mutants(file_path)
