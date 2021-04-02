@@ -13,6 +13,8 @@ Clone the repository and run
 
 This will install the Python library and the CLI.
 
+Note: `find_mutants` also requires pysam and seaborn
+
 ## Usage example
 
 Converting mutation names:
@@ -29,3 +31,19 @@ Finding mutations in BAM file:
 ```
 cov_breakdown find_mutants reads.bam
 ```
+
+Finding mutations in BAM files for multiple samples:
+
+```
+cov_breakdown find_mutants samples.txt
+```
+
+Where samples.txt looks like:
+
+```
+reads1.bam	Sample 1 name
+reads2.bam	Sample 2 name
+...
+```
+
+Running `find_mutants` will print the number of reads with and without each mutation in each sample and then generate a heatmap showing the frequencies for all samples.
