@@ -1,5 +1,7 @@
+from .amplicon_coverage import amplicon_coverage
 from .analyze import find_mutants
 from .cmds import aa, nt
+# from .consensus import consensus_from_bam
 
 
 class CovBreakdown(object):
@@ -16,3 +18,9 @@ class CovBreakdown(object):
 
     def find_mutants(self, file_path):
         find_mutants(file_path)
+
+    # def consensus(self, file_path):
+    #     consensus_from_bam(file_path)
+
+    def amplicon_coverage(self, file_path):
+        amplicon_coverage(file_path)

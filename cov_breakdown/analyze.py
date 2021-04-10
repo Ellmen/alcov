@@ -1,6 +1,7 @@
 from .convert_mutations import aa, nt
 
 
+# TODO: Read from user-provided file
 b117_mutations = [
     'A28271-',
     'G28280C',
