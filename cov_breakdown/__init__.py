@@ -16,11 +16,11 @@ class CovBreakdown(object):
     def nt(self, mut):
         nt(mut)
 
-    def find_mutants(self, file_path):
-        find_mutants(file_path)
+    def find_mutants(self, samples_path, mutations_path=None):
+        find_mutants(samples_path, mutations_path)
 
     # def consensus(self, file_path):
     #     consensus_from_bam(file_path)
 
-    def amplicon_coverage(self, file_path):
-        amplicon_coverage(file_path)
+    def amplicon_coverage(self, samples_path):
+        amplicon_coverage(samples_path)

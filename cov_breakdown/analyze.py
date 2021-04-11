@@ -1,19 +1,21 @@
 from .convert_mutations import aa, nt
 
 
-# TODO: Read from user-provided file
 b117_mutations = [
     'A28271-',
     'G28280C',
     'A28281T',
     'T28282A',
-]
-
-b117_aa_mutations = [
     'S:N501Y',
     # 'S:A570D',
     # 'S:E484K'
 ]
+
+
+def parse_mutations(mutations):
+    nts = [mut for mut in mutations if ':' not in mut]
+    aas = [mut for mut in mutations if ':' in mut]
+    return nts + sum([aa(mut) for mut in aas], [])
 
 
 def parse_snv(snv):
@@ -97,10 +99,9 @@ def plot_mutations(sample_results, sample_names):
     plt.show()
 
 
-def find_mutants_in_bam(bam_path):
+def find_mutants_in_bam(bam_path, mutations):
     import pysam
 
-    mutations = b117_mutations + sum([aa(mut) for mut in b117_aa_mutations], [])
     samfile = pysam.Samfile(bam_path, "rb")
 
     parsed_muts = [parse_snv(mut) for mut in mutations]
@@ -119,16 +120,25 @@ def find_mutants_in_bam(bam_path):
     return mut_results
 
 
-def find_mutants(file_path):
+def find_mutants(file_path, mutations_path=None):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
     s2.bam  Sample 2
     """
+
     sample_results = []
     sample_names = []
+    if mutations_path:
+        print('Searching for mutations in {}'.format(mutations_path))
+        with open(mutations_path, 'r') as f:
+            mutations = parse_mutations([mut for mut in f.read().split('\n') if len(mut)])
+    else:
+        print('Searching for B.1.1.7 mutations...')
+        mutations = parse_mutations(b117_mutations)
+
     if file_path.endswith('.bam'):
-        sample_results.append(find_mutants_in_bam(file_path))
+        sample_results.append(find_mutants_in_bam(file_path, mutations))
         sample_names.append('')
     else:
         with open(file_path, 'r') as f:
@@ -136,7 +146,7 @@ def find_mutants(file_path):
         for sample in samples:
             if sample[0].endswith('.bam'): # Mostly for filtering empty
                 print('{}:'.format(sample[1]))
-                sample_results.append(find_mutants_in_bam(sample[0]))
+                sample_results.append(find_mutants_in_bam(sample[0], mutations))
                 sample_names.append(sample[1])
                 print()
     plot_mutations(sample_results, sample_names)
