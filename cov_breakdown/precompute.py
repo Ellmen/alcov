@@ -18,8 +18,15 @@ def process_reference():
 
 
 def get_amplicons():
+    cov = list(SeqIO.parse("sequence.gb", "genbank"))[0]
     with open('nCoV-2019.insert.bed', 'r') as f:
         inserts = [l.split('\t') for l in f.read().split('\n')[:-1]]
+
+    for i in range(len(inserts)):
+        insert = inserts[i]
+        section = cov.seq[int(insert[1]):int(insert[2])]
+        gc = (section.count('G') + section.count('C')) / len(section)
+        inserts[i].append(gc)
 
     with open('artic_amplicons.py', 'w') as f:
         f.write('inserts = {}'.format(inserts))

@@ -27,6 +27,34 @@ def plot_depths(sample_results, sample_names):
     plt.show()
 
 
+def plot_depths_gc(sample_results, sample_names):
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns; sns.set_theme()
+    import seaborn as sns
+    # sns.set_theme(style="whitegrid")
+    depths = sample_results[0]
+    samples = sum([98*[name] for name in sample_names], [])
+    amplicons = sum([list(amplicon.keys()) for amplicon in sample_results], [])
+    gcs = [inserts[int(a)-1][6] for a in amplicons]
+    pools = ['Pool 1' if int(a) % 2 == 0 else 'Pool 2' for a in amplicons]
+    depths = sum([[np.log(max(a, 1)) for a in amplicon.values()] for amplicon in sample_results], [])
+    d = {
+        'Sample': samples,
+        'Amplicon number': [int(a) for a in amplicons],
+        'GC content': gcs,
+        'Pool': pools,
+        'Log depth': depths
+    }
+    df = pd.DataFrame(data=d)
+    df = df.loc[df['Log depth'] != 0]
+    g = sns.FacetGrid(df, col="Sample")
+    g.map(sns.regplot, "GC content", "Log depth")
+    # g.map(sns.regplot, "Amplicon number", "Log depth")
+    plt.show()
+
+
 def plot_amplified_fraction(sample_results, sample_names):
     import numpy as np
     import pandas as pd
@@ -89,4 +117,24 @@ def amplicon_coverage(file_path):
                 sample_results.append(find_depths_in_bam(sample[0]))
                 sample_names.append(sample[1])
     plot_depths(sample_results, sample_names)
-    # plot_amplified_fraction(sample_results, sample_names)
+
+
+def gc_depth(file_path):
+    """
+    Accepts either a bam file or a tab delimited  txt file like
+    s1.bam  Sample 1
+    s2.bam  Sample 2
+    """
+    sample_results = []
+    sample_names = []
+    if file_path.endswith('.bam'):
+        sample_results.append(find_depths_in_bam(file_path))
+        sample_names.append('')
+    else:
+        with open(file_path, 'r') as f:
+            samples = [line.split('\t') for line in f.read().split('\n')]
+        for sample in samples:
+            if sample[0].endswith('.bam'): # Mostly for filtering empty
+                sample_results.append(find_depths_in_bam(sample[0]))
+                sample_names.append(sample[1])
+    plot_depths_gc(sample_results, sample_names)

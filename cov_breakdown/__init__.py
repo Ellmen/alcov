@@ -1,4 +1,4 @@
-from .amplicon_coverage import amplicon_coverage
+from .amplicon_coverage import amplicon_coverage, gc_depth
 from .analyze import find_mutants
 from .cmds import aa, nt
 # from .consensus import consensus_from_bam
@@ -24,3 +24,6 @@ class CovBreakdown(object):
 
     def amplicon_coverage(self, samples_path):
         amplicon_coverage(samples_path)
+
+    def gc_depth(self, samples_path):
+        gc_depth(samples_path)
