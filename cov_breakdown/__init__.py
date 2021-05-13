@@ -1,6 +1,7 @@
 from .amplicon_coverage import amplicon_coverage, gc_depth
 from .analyze import find_mutants
 from .cmds import aa, nt
+from .lineages import find_lineages
 # from .consensus import consensus_from_bam
 
 
@@ -18,6 +19,9 @@ class CovBreakdown(object):
 
     def find_mutants(self, samples_path, mutations_path=None):
         find_mutants(samples_path, mutations_path)
+
+    def find_lineages(self, samples_path):
+        find_lineages(samples_path)
 
     # def consensus(self, file_path):
     #     consensus_from_bam(file_path)
