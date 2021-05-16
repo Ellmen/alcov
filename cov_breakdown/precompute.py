@@ -34,16 +34,30 @@ def get_amplicons():
         f.write('inserts = {}'.format(inserts))
 
 
+def fix_mut_name(old_mut_name):
+    mut_name = old_mut_name.upper()
+    if '/' in mut_name:
+        # If multiple amino acid dels, only take the first
+        mut_name = mut_name[:mut_name.find('/')]
+    if not mut_name.startswith('ORF'):
+        return mut_name
+    orf = 'ORF'
+    col_idx = mut_name.find(':')
+    mid = mut_name[3:col_idx]
+    end = mut_name[col_idx:]
+    return orf + mid.lower() + end
+
+
 def get_mutations():
    # TODO figure out capitalization
    with open('mutations.json', 'r') as f:
         raw_mutations = json.loads(f.read())
 
-   muts = list(set([m['mutation'].upper() for m in raw_mutations]))
+   muts = list(set([fix_mut_name(m['mutation']) for m in raw_mutations]))
    lins = list(set([m['pangolin_lineage'].upper() for m in raw_mutations]))
    mut_lins = {mut: {lin: 0 for lin in lins} for mut in muts}
    for raw_m in raw_mutations:
-       mut = raw_m['mutation'].upper()
+       mut = fix_mut_name(raw_m['mutation'])
        lin = raw_m['pangolin_lineage'].upper()
        prev = raw_m['prevalence']
        mut_lins[mut][lin] = prev
