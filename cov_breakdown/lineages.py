@@ -78,6 +78,7 @@ def plot_lineages(sample_results, sample_names):
     )
     plt.xlabel('Sample')
     plt.ylabel('Lineage')
+    plt.tight_layout()
     plt.show()
 
 
@@ -89,7 +90,8 @@ def find_mutants_in_bam(bam_path):
 
     samfile = pysam.Samfile(bam_path, "rb")
 
-    aa_mutations = [m for m in mut_lins.keys() if 'DEL' not in m and m[0] in ['S', 'N', 'E', 'M']] # TODO: parse dels, orfs
+    aa_mutations = [m for m in mut_lins.keys() if m[:5] not in ['ORF1a', 'ORF1b']] # TODO: parse orf1a/b
+    # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['S']] # Only spike
     aa_blacklist = ['S:D614G'] # all lineages contain this now
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
     mutations = parse_mutations(aa_mutations)
@@ -105,29 +107,51 @@ def find_mutants_in_bam(bam_path):
                 muts, not_muts = mut_in_col(pileupcolumn, m[2])
                 mut_results['{}{}{}'.format(m[0], m[1], m[2])] = [muts, not_muts]
     samfile.close()
-    covered_muts = [m for m in mutations if sum(mut_results[m]) > 10]
+    covered_nt_muts = [m for m in mutations if sum(mut_results[m]) > 40]
+    covered_muts = []
+    for m in aa_mutations:
+        nt_muts = aa(m)
+        if any([nt_mut in covered_nt_muts for nt_mut in nt_muts]):
+            # Pick only highest prevalence SNP if there are multiple
+            most_common_snp = None
+            snp_prevalence = -1
+            for nt_mut in nt_muts:
+                if mut_results[nt_mut][0] > snp_prevalence:
+                    most_common_snp = nt_mut
+                    snp_prevalence = mut_results[nt_mut][0]
+            covered_muts.append(most_common_snp)
     covered_lineages = set()
     for m in covered_muts:
-        for l in mut_lins[nt(m)]:
-            if mut_results[m][0] > 0 and mut_lins[nt(m)][l] > 0.5:
+        aa_m = nt(m)
+        for l in mut_lins[aa_m]:
+            if mut_results[m][0] > 0 and mut_lins[aa_m][l] > 0.5:
                 covered_lineages.add(l)
     covered_lineages = [l for l in lineages if l in covered_lineages]
-    print(covered_lineages)
     # TODO: filter uncovered lineages
     Y = np.array([mut_results[m][0]/sum(mut_results[m]) if sum(mut_results[m]) > 0 else 0 for m in covered_muts])
-    X = np.array([[mut_lins[nt(mut)][lin] for lin in lineages] for mut in covered_muts])
+    lin_mut_profiles = [[round(mut_lins[nt(mut)][lin]) for mut in covered_muts] for lin in lineages]
+    # Merge indistinguishable lineages
+    merged_lmps = []
+    merged_lins = []
+    for i in range(len(lineages)):
+        lmp = lin_mut_profiles[i]
+        lin = lineages[i]
+        if lmp in merged_lmps:
+            lmp_idx = merged_lmps.index(lmp)
+            merged_lins[lmp_idx] += ' or '
+            merged_lins[lmp_idx] += lin
+        else:
+            merged_lmps.append(lmp)
+            merged_lins.append(lin)
+    # X = np.array([[round(mut_lins[nt(mut)][lin]) for lin in lineages] for mut in covered_muts])
+    X = np.array(merged_lmps).T
     print([nt(m) for m in covered_muts])
     print(Y)
-    # print(X)
     reg = LinearRegression(fit_intercept=0, positive=True).fit(X, Y)
-    # reg = Ridge(fit_intercept=0, positive=True).fit(X, Y)
-    # reg = Ridge(fit_intercept=0).fit(X, Y)
-    # print(reg.coef_)
-    # print(len(lineages))
-    # print(len(reg.coef_))
 
     # print_mut_results(mut_results)
-    sample_results = {lineages[i]: round(reg.coef_[i], 3) for i in range(len(lineages))}
+    # sample_results = {lineages[i]: round(reg.coef_[i], 3) for i in range(len(lineages))}
+    sample_results = {merged_lins[i]: round(reg.coef_[i], 3) for i in range(len(merged_lins))}
 
     return sample_results
 
