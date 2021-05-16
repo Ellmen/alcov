@@ -26,11 +26,13 @@ nts = 'ACGT'
 
 
 def aa(mut):
-    new_acid = mut[-1]
     gene = mut[:mut.find(':')]
-    aa_idx = int(re.findall(r'\d+', mut)[0])
+    aa_idx = int(re.findall(r'\d+', mut)[-1])
     nt_idx = genes[gene][0] + (aa_idx - 1) * 3
     codon = seq[nt_idx:nt_idx+3]
+    if mut[mut.find(':')+1:].startswith('DEL'):
+        return ['{}{}-'.format(seq[nt_idx],nt_idx+1) for nt_idx in range(nt_idx,nt_idx+3)]
+    new_acid = mut[-1]
     acid = codons[codon]
     nt_muts = []
 
@@ -59,6 +61,8 @@ def nt(mut):
             nt_offset = (nt_idx - l[0]) % 3
             # Slightly roundabout way of getting start of codon
             aa_idx = int((nt_idx - l[0]) / 3) + 1
+            if new_base == '-':
+                return '{}:DEL{}'.format(gene, aa_idx)
             codon_start = l[0] + (aa_idx - 1) * 3
             codon = list(seq[codon_start:codon_start+3])
             acid = codons[''.join(codon)]
