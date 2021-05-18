@@ -41,14 +41,11 @@ def print_mut_results(mut_results):
     for name in mut_results:
         muts, not_muts = mut_results[name]
         new_base = name[-1]
-        if new_base == '-':
-            print('{}:'.format(name))
-        else:
-            print('{} ({}):'.format(name, nt(name)))
         total = muts + not_muts
         if total == 0:
-            print('No coverage of {}'.format(name))
+            continue
         else:
+            print('{} ({}):'.format(name, nt(name)))
             print('{} are {}, {} are wildtype ({:.2f}% of {} total)'.format(
                 muts,
                 new_base,
@@ -65,7 +62,6 @@ def plot_lineages(sample_results, sample_names):
     names = sample_results[0].keys()
     num_lineagess = len(names)
     lin_fractions = np.array([[lin_results[lin] for lin in names] for lin_results in sample_results]).T
-    print(lin_fractions)
     ax = sns.heatmap(
         lin_fractions,
         annot=True,
@@ -145,11 +141,11 @@ def find_mutants_in_bam(bam_path):
             merged_lins.append(lin)
     # X = np.array([[round(mut_lins[nt(mut)][lin]) for lin in lineages] for mut in covered_muts])
     X = np.array(merged_lmps).T
-    print([nt(m) for m in covered_muts])
-    print(Y)
+    # print([nt(m) for m in covered_muts])
+    # print(Y)
     reg = LinearRegression(fit_intercept=0, positive=True).fit(X, Y)
 
-    # print_mut_results(mut_results)
+    print_mut_results(mut_results)
     # sample_results = {lineages[i]: round(reg.coef_[i], 3) for i in range(len(lineages))}
     sample_results = {merged_lins[i]: round(reg.coef_[i], 3) for i in range(len(merged_lins))}
 
