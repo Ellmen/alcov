@@ -1,6 +1,10 @@
 # CoV Breakdown
 
-Analysis of SARS-CoV-2 mutations. The tool can be used for:
+Analysis of SARS-CoV-2 mutations. The primary purpose of the tool is:
+
+* Estimating abundace of variants of concern from wastewater sequencing data
+
+The tool can also be used for:
 
 * Converting nucleotide and amino acid mutations for SARS-CoV-2 such as those found on https://covariants.org/variants/S.N501
 * Determining the frequency of mutations of interest in BAM files. Currently looks for N501Y and A28271- from https://www.medrxiv.org/content/10.1101/2021.02.22.21252041v1.full.pdf
@@ -15,9 +19,15 @@ Clone the repository and run
 
 This will install the Python library and the CLI.
 
-Note: `find_mutants` also requires pysam and seaborn
+Note: `find_mutants` also requires pysam and seaborn. `find_lineages` requires scikit-learn version 0.24
 
 ## Usage example
+
+Estimating relative abundance of variants of concern:
+
+```
+cov_breakdown find_lineages reads.bam
+```
 
 Converting mutation names:
 
