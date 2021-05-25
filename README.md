@@ -7,9 +7,11 @@ Analysis of SARS-CoV-2 mutations. The primary purpose of the tool is:
 The tool can also be used for:
 
 * Converting nucleotide and amino acid mutations for SARS-CoV-2 such as those found on https://covariants.org/variants/S.N501
-* Determining the frequency of mutations of interest in BAM files. Currently looks for N501Y and A28271- from https://www.medrxiv.org/content/10.1101/2021.02.22.21252041v1.full.pdf
+* Determining the frequency of mutations of interest in BAM files
 * Plotting the depth for each ARTIC amplicon (https://github.com/artic-network/artic-ncov2019/tree/master/primer\_schemes/nCoV-2019/V3)
 * Comparing amplicon GC content with its read depth (as a measure of degredation)
+
+The tool is under active development. If you have questions or issues, please open an issue on GitHub or email me (email in setup.py).
 
 ## Installing
 
@@ -19,17 +21,17 @@ Clone the repository and run
 
 This will install the Python library and the CLI.
 
-Note: `find_mutants` also requires pysam and seaborn. `find_lineages` requires scikit-learn version 0.24
+Note: `find_mutants` also requires pysam and seaborn. `find_lineages` requires scikit-learn version 0.24.
 
 ## Usage example
 
-Estimating relative abundance of variants of concern:
+### Estimating relative abundance of variants of concern:
 
 ```
 cov_breakdown find_lineages reads.bam
 ```
 
-Converting mutation names:
+### Converting mutation names:
 
 ```
 $ cov_breakdown nt A23063T
