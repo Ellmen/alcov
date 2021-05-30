@@ -72,8 +72,8 @@ def plot_lineages(sample_results, sample_names):
         vmin=0,
         vmax=1
     )
-    plt.xlabel('Sample')
-    plt.ylabel('Lineage')
+    plt.xlabel('Frequency in sample')
+    plt.ylabel('SARS-CoV-2 lineage')
     plt.tight_layout()
     plt.show()
 
