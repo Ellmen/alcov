@@ -15,11 +15,15 @@ The tool is under active development. If you have questions or issues, please op
 
 ## Installing
 
-Clone the repository and run
+The latest release can be downloaded from PyPI
 
-`pip install .`
+`pip install alcov`
 
 This will install the Python library and the CLI.
+
+To install the development version, clone the repository and run
+
+`pip install .`
 
 ## Usage example
 
