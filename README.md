@@ -1,6 +1,6 @@
-# CoV Breakdown
+# Alcov
 
-Analysis of SARS-CoV-2 mutations. The primary purpose of the tool is:
+Abundance learning for SARS-CoV-2 variants. The primary purpose of the tool is:
 
 * Estimating abundace of variants of concern from wastewater sequencing data
 
@@ -28,28 +28,28 @@ Note: `find_mutants` also requires pysam and seaborn. `find_lineages` requires s
 ### Estimating relative abundance of variants of concern:
 
 ```
-cov_breakdown find_lineages reads.bam
+alcov find_lineages reads.bam
 ```
 
 ### Converting mutation names:
 
 ```
-$ cov_breakdown nt A23063T
+$ alcov nt A23063T
 A23063T causes S:N501Y
-$ cov_breakdown aa S:E484K
+$ alcov aa S:E484K
 G23012A causes S:E484K
 ```
 
 ### Finding mutations in BAM file:
 
 ```
-cov_breakdown find_mutants reads.bam
+alcov find_mutants reads.bam
 ```
 
 Finding mutations in BAM files for multiple samples:
 
 ```
-cov_breakdown find_mutants samples.txt
+alcov find_mutants samples.txt
 ```
 
 Where `samples.txt` looks like:
@@ -65,7 +65,7 @@ Running `find_mutants` will print the number of reads with and without each muta
 You can also specify a custom mutations file:
 
 ```
-cov_breakdown find_mutants samples.txt mutations.txt
+alcov find_mutants samples.txt mutations.txt
 ```
 
 Where `mutations.txt` looks like:
@@ -79,23 +79,23 @@ G23012A
 ### Getting the read depth for each amplicon
 
 ```
-cov_breakdown amplicon_coverage reads.bam
+alcov amplicon_coverage reads.bam
 ```
 
 or
 
 ```
-cov_breakdown amplicon_coverage samples.txt
+alcov amplicon_coverage samples.txt
 ```
 
 ### Plotting amplicon GC content against amplicon depth
 
 ```
-cov_breakdown gc_depth reads.bam
+alcov gc_depth reads.bam
 ```
 
 or
 
 ```
-cov_breakdown gc_depth samples.txt
+alcov gc_depth samples.txt
 ```
