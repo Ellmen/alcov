@@ -9,6 +9,12 @@ setup(
     packages=['alcov'],
     install_requires=[
         'fire',
+        'numpy',
+        'pandas',
+        'scikit-learn>=0.24',
+        'matplotlib',
+        'seaborn',
+        'pysam',
     ],
     entry_points={
         'console_scripts': ['alcov=alcov.command_line:main'],

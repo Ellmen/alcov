@@ -21,8 +21,6 @@ Clone the repository and run
 
 This will install the Python library and the CLI.
 
-Note: `find_mutants` also requires pysam and seaborn. `find_lineages` requires scikit-learn version 0.24.
-
 ## Usage example
 
 ### Estimating relative abundance of variants of concern:
