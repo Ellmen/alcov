@@ -4,6 +4,8 @@ Abundance learning for SARS-CoV-2 variants. The primary purpose of the tool is:
 
 * Estimating abundace of variants of concern from wastewater sequencing data
 
+You can read more about how Alcov works in the preprint, __[Alcov: Estimating Variant of Concern Abundance from SARS-CoV-2 Wastewater Sequencing Data](https://www.medrxiv.org/content/10.1101/2021.06.03.21258306v1)__
+
 The tool can also be used for:
 
 * Converting nucleotide and amino acid mutations for SARS-CoV-2 such as those found on https://covariants.org/variants/S.N501
