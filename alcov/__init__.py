@@ -20,8 +20,8 @@ class CovBreakdown(object):
     def find_mutants(self, samples_path, mutations_path=None):
         find_mutants(samples_path, mutations_path)
 
-    def find_lineages(self, samples_path):
-        find_lineages(samples_path)
+    def find_lineages(self, samples_path, ts=False, csv=False):
+        find_lineages(samples_path, ts, csv)
 
     # def consensus(self, file_path):
     #     consensus_from_bam(file_path)
