@@ -224,10 +224,14 @@ def find_mutants_in_bam(bam_path, return_data=False):
 
     aa_mutations = [m for m in mut_lins.keys() if m[:5] not in ['ORF1a', 'ORF1b']] # TODO: parse orf1a/b
     # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['S']] # Only spike
+    # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['N']] # Only N
     aa_blacklist = ['S:D614G'] # all lineages contain this now
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
     mutations = parse_mutations(aa_mutations)
-    lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+    # lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+    vocs = ['B.1.1.7', 'B.1.617.2', 'P.1', 'B.1.351']
+    vois = ['B.1.525', 'B.1.526', 'B.1.617.1', 'C.37']
+    lineages = vocs + vois
 
     parsed_muts = [parse_snv(mut) for mut in mutations]
     mut_results = {mut: [0,0] for mut in mutations}
@@ -239,7 +243,7 @@ def find_mutants_in_bam(bam_path, return_data=False):
                 muts, not_muts = mut_in_col(pileupcolumn, m[2])
                 mut_results['{}{}{}'.format(m[0], m[1], m[2])] = [muts, not_muts]
     samfile.close()
-    covered_nt_muts = [m for m in mutations if sum(mut_results[m]) > 5]
+    covered_nt_muts = [m for m in mutations if sum(mut_results[m]) > 40]
     covered_muts = []
     for m in aa_mutations:
         nt_muts = aa(m)
