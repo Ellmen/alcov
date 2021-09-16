@@ -216,7 +216,7 @@ def do_regression(lmps, Y):
     return X, best_reg
 
 
-def find_mutants_in_bam(bam_path, return_data=False, min_depth=40):
+def find_mutants_in_bam(bam_path, return_data=False, min_depth=40, only_vocs=True):
     import numpy as np
     import pysam
 
@@ -228,10 +228,11 @@ def find_mutants_in_bam(bam_path, return_data=False, min_depth=40):
     aa_blacklist = ['S:D614G'] # all lineages contain this now
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
     mutations = parse_mutations(aa_mutations)
-    # lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+    lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
     vocs = ['B.1.1.7', 'B.1.617.2', 'P.1', 'B.1.351']
     vois = ['B.1.525', 'B.1.526', 'B.1.617.1', 'C.37']
-    lineages = vocs + vois
+    if only_vocs:
+        lineages = vocs + vois
 
     parsed_muts = [parse_snv(mut) for mut in mutations]
     mut_results = {mut: [0,0] for mut in mutations}
@@ -292,7 +293,7 @@ def find_mutants_in_bam(bam_path, return_data=False, min_depth=40):
     return sample_results
 
 
-def find_lineages(file_path, ts, csv, min_depth):
+def find_lineages(file_path, ts, csv, min_depth, only_vocs):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -303,7 +304,7 @@ def find_lineages(file_path, ts, csv, min_depth):
     sample_names = []
 
     if file_path.endswith('.bam'):
-        sr, X, Y, covered_muts = find_mutants_in_bam(file_path, True, min_depth)
+        sr, X, Y, covered_muts = find_mutants_in_bam(file_path, True, min_depth, only_vocs)
         show_lineage_predictions(sr, X, Y, covered_muts)
         sample_results.append(sr)
         sample_names.append('')
@@ -313,7 +314,7 @@ def find_lineages(file_path, ts, csv, min_depth):
         for sample in samples:
             if sample[0].endswith('.bam'): # Mostly for filtering empty
                 print('{}:'.format(sample[1]))
-                sample_result = find_mutants_in_bam(sample[0], False, min_depth)
+                sample_result = find_mutants_in_bam(sample[0], False, min_depth, only_vocs)
                 if sample_result is not None:
                     sample_results.append(sample_result)
                     sample_names.append(sample[1])

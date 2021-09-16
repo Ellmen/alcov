@@ -35,6 +35,12 @@ To install the development version, clone the repository and run
 alcov find_lineages reads.bam
 ```
 
+Optionally look for non-voc lineages and change minimum read depth (default 40)
+
+```
+alcov find_lineages --only_vocs=False --min_depth=5 reads.bam
+```
+
 ### Converting mutation names:
 
 ```
