@@ -41,6 +41,37 @@ Optionally look for non-voc lineages and change minimum read depth (default 40)
 alcov find_lineages --only_vocs=False --min_depth=5 reads.bam
 ```
 
+Finding lineages in BAM files for multiple samples:
+
+```
+alcov find_lineages samples.txt
+```
+
+Where `samples.txt` looks like:
+
+```
+reads1.bam	Sample 1 name
+reads2.bam	Sample 2 name
+...
+```
+
+Plotting change in lineage distributions over time for multiple sites
+
+```
+alcov find_lineages --ts samples.txt
+```
+
+Where `samples.txt` looks like:
+
+```
+reads1.bam	SITE1_2021-09-10
+reads2.bam	SITE1_2021-09-12
+...
+reads3.bam	SITE2_2021-09-10
+reads4.bam	SITE2_2021-09-12
+...
+```
+
 ### Converting mutation names:
 
 ```
