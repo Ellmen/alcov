@@ -68,7 +68,7 @@ def print_mut_results(mut_results):
             ))
 
 
-def plot_mutations(sample_results, sample_names):
+def plot_mutations(sample_results, sample_names, min_depth):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
@@ -76,12 +76,11 @@ def plot_mutations(sample_results, sample_names):
     sample_counts = [[mut_results[mut] for mut in names] for mut_results in sample_results]
     num_mutations = len(names)
     mut_fractions = [[] for _ in range(num_mutations)]
-    min_reads = 5
     for i in range(num_mutations):
         for counts in sample_counts:
             count = counts[i]
             total = count[0] + count[1]
-            fraction = count[0]/total if total >= min_reads else -1
+            fraction = count[0]/total if total >= min_depth else -1
             mut_fractions[i].append(fraction)
     no_reads = np.array([[f == -1 for f in fractions] for fractions in mut_fractions])
     ax = sns.heatmap(
@@ -120,7 +119,7 @@ def find_mutants_in_bam(bam_path, mutations):
     return mut_results
 
 
-def find_mutants(file_path, mutations_path=None):
+def find_mutants(file_path, mutations_path, min_depth):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -149,4 +148,4 @@ def find_mutants(file_path, mutations_path=None):
                 sample_results.append(find_mutants_in_bam(sample[0], mutations))
                 sample_names.append(sample[1])
                 print()
-    plot_mutations(sample_results, sample_names)
+    plot_mutations(sample_results, sample_names, min_depth)

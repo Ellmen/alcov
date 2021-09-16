@@ -216,7 +216,7 @@ def do_regression(lmps, Y):
     return X, best_reg
 
 
-def find_mutants_in_bam(bam_path, return_data=False):
+def find_mutants_in_bam(bam_path, return_data=False, min_depth=40):
     import numpy as np
     import pysam
 
@@ -243,7 +243,7 @@ def find_mutants_in_bam(bam_path, return_data=False):
                 muts, not_muts = mut_in_col(pileupcolumn, m[2])
                 mut_results['{}{}{}'.format(m[0], m[1], m[2])] = [muts, not_muts]
     samfile.close()
-    covered_nt_muts = [m for m in mutations if sum(mut_results[m]) > 40]
+    covered_nt_muts = [m for m in mutations if sum(mut_results[m]) > min_depth]
     covered_muts = []
     for m in aa_mutations:
         nt_muts = aa(m)
@@ -292,7 +292,7 @@ def find_mutants_in_bam(bam_path, return_data=False):
     return sample_results
 
 
-def find_lineages(file_path, ts=False, csv=False):
+def find_lineages(file_path, ts, csv, min_depth):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -303,7 +303,7 @@ def find_lineages(file_path, ts=False, csv=False):
     sample_names = []
 
     if file_path.endswith('.bam'):
-        sr, X, Y, covered_muts = find_mutants_in_bam(file_path, return_data=True)
+        sr, X, Y, covered_muts = find_mutants_in_bam(file_path, True, min_depth)
         show_lineage_predictions(sr, X, Y, covered_muts)
         sample_results.append(sr)
         sample_names.append('')
@@ -313,7 +313,7 @@ def find_lineages(file_path, ts=False, csv=False):
         for sample in samples:
             if sample[0].endswith('.bam'): # Mostly for filtering empty
                 print('{}:'.format(sample[1]))
-                sample_result = find_mutants_in_bam(sample[0])
+                sample_result = find_mutants_in_bam(sample[0], False, min_depth)
                 if sample_result is not None:
                     sample_results.append(sample_result)
                     sample_names.append(sample[1])
