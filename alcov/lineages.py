@@ -293,7 +293,7 @@ def find_mutants_in_bam(bam_path, return_data=False, min_depth=40, only_vocs=Tru
     return sample_results
 
 
-def find_lineages(file_path, ts, csv, min_depth, only_vocs):
+def find_lineages(file_path, ts, csv, min_depth, only_vocs, show_stacked):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -305,7 +305,8 @@ def find_lineages(file_path, ts, csv, min_depth, only_vocs):
 
     if file_path.endswith('.bam'):
         sr, X, Y, covered_muts = find_mutants_in_bam(file_path, True, min_depth, only_vocs)
-        show_lineage_predictions(sr, X, Y, covered_muts)
+        if show_stacked:
+            show_lineage_predictions(sr, X, Y, covered_muts)
         sample_results.append(sr)
         sample_names.append('')
     else:

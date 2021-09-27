@@ -29,6 +29,10 @@ To install the development version, clone the repository and run
 
 ## Usage example
 
+### Preprocessing
+
+Alcov expects a BAM file of reads aligned to the SARS-CoV-2 reference genome. For an example of how to process Illumina reads, check the `prep` directory.
+
 ### Estimating relative abundance of variants of concern:
 
 ```
@@ -39,6 +43,12 @@ Optionally look for non-voc lineages and change minimum read depth (default 40)
 
 ```
 alcov find_lineages --only_vocs=False --min_depth=5 reads.bam
+```
+
+Optionally show how predicted mutation rates agree with observed mutation rates
+
+```
+alcov find_lineages --show_stacked=True reads.bam
 ```
 
 Finding lineages in BAM files for multiple samples:
