@@ -186,6 +186,23 @@ def show_lineage_predictions(sample_results, X, Y, covered_muts):
     plt.show()
 
 
+def show_lineage_pie(sample_results):
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns; sns.set_theme()
+    merged_lins = list(sample_results.keys())
+    freqs = [sample_results[ml] for ml in merged_lins]
+    if sum(freqs) < 1:
+        merged_lins.append('Other')
+        freqs.append(1 - sum(freqs))
+    df = pd.DataFrame(data={'freqs': freqs}, index=merged_lins)
+    df = df.loc[:, df.any()] # Delete all-zero lineages
+    # print(sample_results)
+    df.plot.pie(y='freqs', legend=False)
+    plt.show()
+
+
 def do_regression(lmps, Y):
     # Perform linear regression and redo if sum(frequencies) > 1
     import numpy as np
@@ -307,6 +324,7 @@ def find_lineages(file_path, ts, csv, min_depth, only_vocs, show_stacked):
         sr, X, Y, covered_muts = find_mutants_in_bam(file_path, True, min_depth, only_vocs)
         if show_stacked:
             show_lineage_predictions(sr, X, Y, covered_muts)
+            show_lineage_pie(sr)
         sample_results.append(sr)
         sample_names.append('')
     else:
