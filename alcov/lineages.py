@@ -1,5 +1,6 @@
 from math import ceil, floor
 
+from .analyze import find_mutants_in_bam, print_mut_results
 from .convert_mutations import aa, nt
 from .mutations import mutations as mut_lins
 
@@ -39,22 +40,20 @@ def mut_in_col(pileupcolumn, mut):
     return muts, not_muts
 
 
-def print_mut_results(mut_results):
-    for name in mut_results:
-        muts, not_muts = mut_results[name]
-        new_base = name[-1]
-        total = muts + not_muts
-        if total == 0:
-            continue
-        else:
-            print('{} ({}):'.format(name, nt(name)))
-            print('{} are {}, {} are wildtype ({:.2f}% of {} total)'.format(
-                muts,
-                new_base,
-                not_muts,
-                muts/total*100,
-                total
-            ))
+def write_csv(sample_results, sample_names):
+    lin_names = set()
+    for sr in sample_results:
+        for key in sr.keys():
+            lin_names.add(key)
+    lin_names = [n for n in lin_names]
+    lin_names.sort()
+    csv_headers = ['Sample name'] + [n + ' %' for n in lin_names]
+    csv_rows = []
+    for i in range(len(sample_names)):
+        sr = sample_results[i]
+        csv_rows.append([sample_names[i]] + [str(round(sr[n], 3)) if n in sr else '0' for n in lin_names])
+    with open('sample_lineages.csv', 'w') as f:
+        f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 
 def plot_lineages(sample_results, sample_names):
@@ -72,7 +71,7 @@ def plot_lineages(sample_results, sample_names):
     # fig, ax = plt.subplots(figsize=(len(sample_names)/2,len(names)/2))
     ax = sns.heatmap(
         lin_fractions,
-        # annot=True,
+        annot=True,
         # mask=no_reads,
         cmap=sns.cm.rocket_r,
         xticklabels=sample_names,
@@ -169,10 +168,16 @@ def show_lineage_predictions(sample_results, X, Y, covered_muts):
     d['Observed'] = []
     idx = []
     for i in range(len(covered_muts)):
-        if Y[i] < 0.02:
+        Y_p = 0
+        for j in range(len(merged_lins)):
+            ml = merged_lins[j]
+            lin_contribution = X[i][j]*sample_results[ml]
+            Y_p += lin_contribution
+        if Y[i] < 0.02 and Y_p < 0.02:
             # Skip non-present mutations
+            # pass
             continue
-        cm = nt(covered_muts[i])
+        cm = covered_muts[i]
         idx.append('{}\nobserved'.format(cm))
         idx.append('{}\npredicted'.format(cm))
         for j in range(len(merged_lins)):
@@ -182,7 +187,11 @@ def show_lineage_predictions(sample_results, X, Y, covered_muts):
         d['Observed'] += [Y[i], 0]
     df = pd.DataFrame(data=d, index=idx)
     df = df.loc[:, df.any()] # Delete all-zero lineages
+    if len(df) == 0:
+        print('No mutations to show')
+        return
     df.plot.bar(stacked=True, rot=0)
+    plt.tight_layout()
     plt.show()
 
 
@@ -194,12 +203,14 @@ def show_lineage_pie(sample_results):
     merged_lins = list(sample_results.keys())
     freqs = [sample_results[ml] for ml in merged_lins]
     if sum(freqs) < 1:
-        merged_lins.append('Other')
-        freqs.append(1 - sum(freqs))
-    df = pd.DataFrame(data={'freqs': freqs}, index=merged_lins)
-    df = df.loc[:, df.any()] # Delete all-zero lineages
-    # print(sample_results)
-    df.plot.pie(y='freqs', legend=False)
+        # merged_lins.append('Other')
+        # freqs.append(1 - sum(freqs))
+        freqs = [f/sum(freqs) for f in freqs]
+    df = pd.DataFrame(data={'Fraction': freqs}, index=merged_lins)
+    df = df[df.Fraction > 0] # Delete all-zero lineages
+    print(df)
+    print(sample_results)
+    df.plot.pie(y='Fraction', legend=False, autopct='%1.1f%%', ylabel='')
     plt.show()
 
 
@@ -233,60 +244,42 @@ def do_regression(lmps, Y):
     return X, best_reg
 
 
-def find_mutants_in_bam(bam_path, return_data=False, min_depth=40, only_vocs=True):
+def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=True):
     import numpy as np
     import pysam
 
     samfile = pysam.Samfile(bam_path, "rb")
 
-    aa_mutations = [m for m in mut_lins.keys() if m[:5] not in ['ORF1a', 'ORF1b']] # TODO: parse orf1a/b
+    aa_mutations = [m for m in mut_lins.keys()]
     # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['S']] # Only spike
     # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['N']] # Only N
     aa_blacklist = ['S:D614G'] # all lineages contain this now
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
+    if len(lineages) == 0:
+        lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+    if unique:
+        aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
     mutations = parse_mutations(aa_mutations)
-    lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
     vocs = ['B.1.1.7', 'B.1.617.2', 'P.1', 'B.1.351']
     vois = ['B.1.525', 'B.1.526', 'B.1.617.1', 'C.37']
-    if only_vocs:
-        lineages = vocs + vois
+    # if only_vocs:
+    # lineages = vocs + vois
+    # lineages = ['Omicron', 'BA.2', 'Delta']
 
-    parsed_muts = [parse_snv(mut) for mut in mutations]
-    mut_results = {mut: [0,0] for mut in mutations}
+    mut_results = find_mutants_in_bam(bam_path, aa_mutations)
 
-    for pileupcolumn in samfile.pileup():
-        pos = pileupcolumn.pos + 1
-        for m in parsed_muts:
-            if pos == m[1]:
-                muts, not_muts = mut_in_col(pileupcolumn, m[2])
-                mut_results['{}{}{}'.format(m[0], m[1], m[2])] = [muts, not_muts]
-    samfile.close()
-    covered_nt_muts = [m for m in mutations if sum(mut_results[m]) > min_depth]
-    covered_muts = []
-    for m in aa_mutations:
-        nt_muts = aa(m)
-        if any([nt_mut in covered_nt_muts for nt_mut in nt_muts]):
-            # Pick only highest prevalence SNP if there are multiple
-            most_common_snp = None
-            snp_prevalence = -1
-            for nt_mut in nt_muts:
-                if mut_results[nt_mut][0] > snp_prevalence:
-                    most_common_snp = nt_mut
-                    snp_prevalence = mut_results[nt_mut][0]
-            covered_muts.append(most_common_snp)
+    covered_muts = [m for m in aa_mutations if sum(mut_results[m]) > min_depth]
     if len(covered_muts) == 0:
         print('No coverage')
         return None
     covered_lineages = set()
     for m in covered_muts:
-        aa_m = nt(m)
-        for l in mut_lins[aa_m]:
-            if mut_results[m][0] > 0 and mut_lins[aa_m][l] > 0.5:
+        for l in mut_lins[m]:
+            if mut_results[m][0] > 0 and mut_lins[m][l] > 0.5:
                 covered_lineages.add(l)
     covered_lineages = [l for l in lineages if l in covered_lineages]
-    # TODO: filter uncovered lineages
     Y = np.array([mut_results[m][0]/sum(mut_results[m]) if sum(mut_results[m]) > 0 else 0 for m in covered_muts])
-    lin_mut_profiles = [[round(mut_lins[nt(mut)][lin]) for mut in covered_muts] for lin in lineages]
+    lin_mut_profiles = [[round(mut_lins[mut][lin]) for mut in covered_muts] for lin in lineages]
     # Merge indistinguishable lineages
     merged_lmps = []
     merged_lins = []
@@ -303,14 +296,18 @@ def find_mutants_in_bam(bam_path, return_data=False, min_depth=40, only_vocs=Tru
     X, reg = do_regression(merged_lmps, Y)
 
     print_mut_results(mut_results)
-    sample_results = {merged_lins[i]: round(reg.coef_[i], 2) for i in range(len(merged_lins))}
+    sample_results = {merged_lins[i]: round(reg.coef_[i], 3) for i in range(len(merged_lins))}
+    # Normalize frequencies
+    freq_sum = sum(sample_results[lin] for lin in sample_results)
+    for lin in sample_results:
+        sample_results[lin] = sample_results[lin] / freq_sum
 
     if return_data:
         return sample_results, X, Y, covered_muts
     return sample_results
 
 
-def find_lineages(file_path, ts, csv, min_depth, only_vocs, show_stacked):
+def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, unique):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -320,8 +317,12 @@ def find_lineages(file_path, ts, csv, min_depth, only_vocs, show_stacked):
     sample_results = []
     sample_names = []
 
+    lineages = []
+    if lineages_path is not None:
+        with open(lineages_path, 'r') as f:
+            lineages = f.read().splitlines()
     if file_path.endswith('.bam'):
-        sr, X, Y, covered_muts = find_mutants_in_bam(file_path, True, min_depth, only_vocs)
+        sr, X, Y, covered_muts = find_lineages_in_bam(file_path, True, min_depth, lineages, unique)
         if show_stacked:
             show_lineage_predictions(sr, X, Y, covered_muts)
             show_lineage_pie(sr)
@@ -333,7 +334,7 @@ def find_lineages(file_path, ts, csv, min_depth, only_vocs, show_stacked):
         for sample in samples:
             if sample[0].endswith('.bam'): # Mostly for filtering empty
                 print('{}:'.format(sample[1]))
-                sample_result = find_mutants_in_bam(sample[0], False, min_depth, only_vocs)
+                sample_result = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique)
                 if sample_result is not None:
                     sample_results.append(sample_result)
                     sample_names.append(sample[1])
@@ -342,3 +343,5 @@ def find_lineages(file_path, ts, csv, min_depth, only_vocs, show_stacked):
         plot_lineages_timeseries(sample_results, sample_names)
     else:
         plot_lineages(sample_results, sample_names)
+    if csv:
+        write_csv(sample_results, sample_names)

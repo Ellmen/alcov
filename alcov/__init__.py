@@ -18,13 +18,10 @@ class CovBreakdown(object):
         nt(mut)
 
     def find_mutants(self, samples_path, mutations_path=None, min_depth=40):
-        find_mutants(samples_path, mutations_path)
+        find_mutants(samples_path, mutations_path, min_depth)
 
-    def find_lineages(self, samples_path, ts=False, csv=False, min_depth=40, only_vocs=True, show_stacked=False):
-        find_lineages(samples_path, ts, csv, min_depth, only_vocs, show_stacked)
-
-    # def consensus(self, file_path):
-    #     consensus_from_bam(file_path)
+    def find_lineages(self, samples_path, lineages_path=None, ts=False, csv=False, min_depth=40, show_stacked=False, unique=True):
+        find_lineages(samples_path, lineages_path, ts, csv, min_depth, show_stacked, unique)
 
     def amplicon_coverage(self, samples_path):
         amplicon_coverage(samples_path)

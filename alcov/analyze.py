@@ -1,21 +1,5 @@
 from .convert_mutations import aa, nt
-
-
-b117_mutations = [
-    'A28271-',
-    'G28280C',
-    'A28281T',
-    'T28282A',
-    'S:N501Y',
-    # 'S:A570D',
-    # 'S:E484K'
-]
-
-
-def parse_mutations(mutations):
-    nts = [mut for mut in mutations if ':' not in mut]
-    aas = [mut for mut in mutations if ':' in mut]
-    return nts + sum([aa(mut) for mut in aas], [])
+from .mutations import mutations as mut_lins
 
 
 def parse_snv(snv):
@@ -23,6 +7,17 @@ def parse_snv(snv):
     old_bp = snv[0]
     new_bp = snv[-1]
     return old_bp, pos, new_bp
+
+
+def snv_name(snv):
+    return '{}{}{}'.format(*snv)
+
+def parse_mutation(mut):
+    if ':' in mut:
+        muts = aa(mut)
+    else:
+        muts = [mut]
+    return [parse_snv(m) for m in muts]
 
 
 def mut_in_col(pileupcolumn, mut):
@@ -38,6 +33,7 @@ def mut_in_col(pileupcolumn, mut):
         for pileupread in pileupcolumn.pileups:
             qpos = pileupread.query_position
             if qpos is None:
+                not_muts += 1
                 continue
             base = pileupread.alignment.query_sequence[qpos]
             if base == mut:
@@ -51,10 +47,7 @@ def print_mut_results(mut_results):
     for name in mut_results:
         muts, not_muts = mut_results[name]
         new_base = name[-1]
-        if new_base == '-':
-            print('{}:'.format(name))
-        else:
-            print('{} ({}):'.format(name, nt(name)))
+        print('{}:'.format(name))
         total = muts + not_muts
         if total == 0:
             print('No coverage of {}'.format(name))
@@ -81,7 +74,7 @@ def plot_mutations(sample_results, sample_names, min_depth):
             count = counts[i]
             total = count[0] + count[1]
             fraction = count[0]/total if total >= min_depth else -1
-            mut_fractions[i].append(fraction)
+            mut_fractions[i].append(round(fraction, 2))
     no_reads = np.array([[f == -1 for f in fractions] for fractions in mut_fractions])
     ax = sns.heatmap(
         mut_fractions,
@@ -103,22 +96,46 @@ def find_mutants_in_bam(bam_path, mutations):
 
     samfile = pysam.Samfile(bam_path, "rb")
 
-    parsed_muts = [parse_snv(mut) for mut in mutations]
-    mut_results = {mut: [0,0] for mut in mutations}
+    # parsed_muts = [parse_snv(mut) for mut in mutations]
+    parsed_muts = {}
+    for mut in mutations:
+        parsed_muts[mut] = parse_mutation(mut)
+    mut_results = {mut: {snv_name(m): [0,0] for m in parsed_muts[mut]} for mut in mutations}
 
     for pileupcolumn in samfile.pileup():
         pos = pileupcolumn.pos + 1
-        for m in parsed_muts:
-            if pos == m[1]:
-                muts, not_muts = mut_in_col(pileupcolumn, m[2])
-                mut_results['{}{}{}'.format(m[0], m[1], m[2])] = [muts, not_muts]
+        for mut in parsed_muts:
+            for m in parsed_muts[mut]:
+                if pos == m[1]:
+                    muts, not_muts = mut_in_col(pileupcolumn, m[2])
+                    mut_results[mut][snv_name(m)] = [muts, not_muts]
     samfile.close()
+
+    for mut in mut_results:
+        max_freq = -1
+        max_muts = [0,0]
+        for m in mut_results[mut]:
+            muts, not_muts = mut_results[mut][m]
+            freq = muts/(muts+not_muts) if muts + not_muts > 0 else 0
+            if freq > max_freq:
+                max_freq = freq
+                max_muts = [muts, not_muts]
+        mut_results[mut] = max_muts
 
     print_mut_results(mut_results)
 
     return mut_results
 
 
+def mut_idx(mut):
+    # Sort by genomic index of mutations
+    snvs = parse_mutation(mut)
+    if len(snvs) == 0:
+        return -1
+    return snvs[0][1]
+
+
+# def find_mutants(file_path, mutations_path, min_depth, not_in): #TODO: not in lineage
 def find_mutants(file_path, mutations_path, min_depth):
     """
     Accepts either a bam file or a tab delimited  txt file like
@@ -128,13 +145,18 @@ def find_mutants(file_path, mutations_path, min_depth):
 
     sample_results = []
     sample_names = []
-    if mutations_path:
+    lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+    if mutations_path in lineages:
+        lin = mutations_path
+        print('Searcing for {} mutations'.format(lin))
+        mutations = [mut for mut in mut_lins if mut_lins[mut][lin] > 0 and mut_idx(mut) != -1]
+        # Unique
+        mutations = [mut for mut in mutations if all(mut_lins[mut][l] == 0 for l in lineages if l != lin)]
+        mutations.sort(key=mut_idx)
+    else:
         print('Searching for mutations in {}'.format(mutations_path))
         with open(mutations_path, 'r') as f:
-            mutations = parse_mutations([mut for mut in f.read().split('\n') if len(mut)])
-    else:
-        print('Searching for B.1.1.7 mutations...')
-        mutations = parse_mutations(b117_mutations)
+            mutations = [mut for mut in f.read().split('\n') if len(mut)]
 
     if file_path.endswith('.bam'):
         sample_results.append(find_mutants_in_bam(file_path, mutations))
