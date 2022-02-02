@@ -39,18 +39,6 @@ Alcov expects a BAM file of reads aligned to the SARS-CoV-2 reference genome. Fo
 alcov find_lineages reads.bam
 ```
 
-Optionally look for non-voc lineages and change minimum read depth (default 40)
-
-```
-alcov find_lineages --only_vocs=False --min_depth=5 reads.bam
-```
-
-Optionally show how predicted mutation rates agree with observed mutation rates
-
-```
-alcov find_lineages --show_stacked=True reads.bam
-```
-
 Finding lineages in BAM files for multiple samples:
 
 ```
@@ -63,6 +51,38 @@ Where `samples.txt` looks like:
 reads1.bam	Sample 1 name
 reads2.bam	Sample 2 name
 ...
+```
+
+Optionally specify which VOCs to look for
+
+```
+alcov find_lineages reads.bam lineages.txt
+```
+
+Where `lineages.txt` looks like:
+
+```
+Omicron
+Delta
+...
+```
+
+Optionally change minimum read depth (default 40)
+
+```
+alcov find_lineages --min_depth=5 reads.bam
+```
+
+Optionally show how predicted mutation rates agree with observed mutation rates
+
+```
+alcov find_lineages --show_stacked=True reads.bam
+```
+
+Use mutations which are found in multiple VOCs (can help for low coverage samples)
+
+```
+alcov find_lineages --unique=False reads.bam
 ```
 
 Plotting change in lineage distributions over time for multiple sites
