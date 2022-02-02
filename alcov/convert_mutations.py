@@ -27,10 +27,15 @@ nts = 'ACGT'
 
 def aa(mut):
     gene = mut[:mut.find(':')]
+    if gene == 'DEL':
+        nt_idx, length = re.findall(r'\d+', mut)
+        nt_idx = int(nt_idx)
+        length = int(length)
+        return ['{}{}-'.format(seq[nt_idx+i], nt_idx+i) for i in range(length)]
     aa_idx = int(re.findall(r'\d+', mut)[-1])
     nt_idx = genes[gene][0] + (aa_idx - 1) * 3
     codon = seq[nt_idx:nt_idx+3]
-    if mut[mut.find(':')+1:].startswith('DEL'):
+    if mut[mut.find(':')+1:].startswith('DEL') or mut[-1] == '-':
         return ['{}{}-'.format(seq[nt_idx],nt_idx+1) for nt_idx in range(nt_idx,nt_idx+3)]
     new_acid = mut[-1]
     acid = codons[codon]
