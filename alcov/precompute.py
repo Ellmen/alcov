@@ -94,7 +94,19 @@ def get_who_mutations():
                     mut['pos'],
                     mut['right']
                 )
-            blacklist = ['ORF1a:P2287S']
+            # TODO: mutations after deletions don't work
+            blacklist = [
+                'ORF1a:P2287S',
+                # Omicron post-deletion
+                'ORF1a:L2084I',
+                'ORF1a:I3758V',
+                'S:Y145D',
+                'S:L212I',
+                # BA.2 post-deletion
+                'S:A27S',
+                # Delta post-deletion
+                'S:R158G'
+            ]
             if mut_name in blacklist:
                 continue
             if mut_name not in mutations:
