@@ -67,7 +67,7 @@ def plot_lineages(sample_results, sample_names):
     names = [n for n in names]
     names.sort()
     # names = sample_results[0].keys()
-    lin_fractions = np.array([[lin_results[lin] if lin in lin_results else 0 for lin in names] for lin_results in sample_results]).T
+    lin_fractions = np.array([[lin_results[lin]*100 if lin in lin_results else 0 for lin in names] for lin_results in sample_results]).T
     # fig, ax = plt.subplots(figsize=(len(sample_names)/2,len(names)/2))
     ax = sns.heatmap(
         lin_fractions,
@@ -77,9 +77,11 @@ def plot_lineages(sample_results, sample_names):
         xticklabels=sample_names,
         yticklabels=names,
         vmin=0,
-        vmax=1,
+        vmax=100,
         square=True,
-        cbar=False,
+        cbar_kws={'format': '%.0f%%'},
+        fmt='.1f',
+        # cbar=False,
     )
     plt.xlabel('Frequency in sample')
     plt.ylabel('SARS-CoV-2 lineage')
