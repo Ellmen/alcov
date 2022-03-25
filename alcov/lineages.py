@@ -57,7 +57,7 @@ def write_csv(sample_results, sample_names):
         f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 
-def plot_lineages(sample_results, sample_names):
+def plot_lineages(sample_results, sample_names, img_path=None):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
@@ -92,8 +92,11 @@ def plot_lineages(sample_results, sample_names):
     # ax.figure.tight_layout()
     # mng = plt.get_current_fig_manager()
     # mng.frame.Maximize(True)
-    # plt.tight_layout()
-    plt.show()
+    plt.tight_layout()
+    if img_path is not None:
+        plt.savefig(img_path, dpi=300)
+    else:
+        plt.show()
 
 
 def plot_lineages_timeseries(sample_results, sample_names):
@@ -388,7 +391,7 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
     return sample_results
 
 
-def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, unique):
+def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, unique, save_img):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -432,9 +435,10 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
         if abs(sum(diffs)/len(diffs)) > 0.1:
             print(mut)
             print(diffs)
+    img_path = file_path.replace('.txt', '.png') if save_img else None
     if ts:
         plot_lineages_timeseries(sample_results, sample_names)
     else:
-        plot_lineages(sample_results, sample_names)
+        plot_lineages(sample_results, sample_names, img_path)
     if csv:
         write_csv(sample_results, sample_names)
