@@ -21,7 +21,7 @@ class CovBreakdown(object):
         find_mutants(samples_path, mutations_path, min_depth)
 
     def find_lineages(self, samples_path, lineages_path=None, ts=False, csv=False, min_depth=40, show_stacked=False, unique=True):
-        find_lineages(samples_path, lineages_path, ts, csv, min_depth, show_stacked, unique)
+        find_lineages(samples_path, lineages_path=lineages_path, ts=ts, csv=csv, min_depth=min_depth, show_stacked=show_stacked, unique=unique)
 
     def amplicon_coverage(self, samples_path):
         amplicon_coverage(samples_path)

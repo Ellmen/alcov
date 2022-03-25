@@ -2,6 +2,8 @@ from .artic_amplicons import inserts
 from .convert_mutations import aa, nt
 
 
+inserts = inserts[70:85]
+
 def plot_depths(sample_results, sample_names):
     import numpy as np
     import pandas as pd
@@ -9,10 +11,12 @@ def plot_depths(sample_results, sample_names):
     import seaborn as sns; sns.set_theme()
     import seaborn as sns
     # sns.set_theme(style="whitegrid")
-    depths = sample_results[0]
-    samples = sum([98*[name] for name in sample_names], [])
+    # samples = sum([98*[name] for name in sample_names], [])
+    # samples = [s[71:85] for s in samples]
+    samples = sum([len(inserts)*[name] for name in sample_names], [])
     amplicons = sum([list(amplicon.keys()) for amplicon in sample_results], [])
-    pools = ['Pool 1' if int(a) % 2 == 0 else 'Pool 2' for a in amplicons]
+    # pools = ['Pool 1' if int(a) % 2 == 0 else 'Pool 2' for a in amplicons]
+    pools = ['Pool 1' if True else 'Pool 2' for a in amplicons]
     depths = sum([[np.log(max(a, 1)) for a in amplicon.values()] for amplicon in sample_results], [])
     d = {
         'Sample': samples,
@@ -23,7 +27,8 @@ def plot_depths(sample_results, sample_names):
     df = pd.DataFrame(data=d)
     g = sns.FacetGrid(df, row="Sample", hue="Pool", height=1.7, aspect=8)
     g.map(sns.barplot, "Amplicon number", "Log depth", order=[str(i) for i in range(1,99)], hue_order=['Pool 1', 'Pool 2'])
-    plt.locator_params(axis='x', nbins=20)
+    # plt.locator_params(axis='x', nbins=20)
+    plt.locator_params(axis='x')
     plt.show()
 
 
