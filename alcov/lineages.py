@@ -1,3 +1,4 @@
+from collections import defaultdict
 from math import ceil, floor
 
 from .analyze import find_mutants_in_bam, print_mut_results
@@ -68,6 +69,8 @@ def plot_lineages(sample_results, sample_names):
     names.sort()
     # names = sample_results[0].keys()
     lin_fractions = np.array([[lin_results[lin]*100 if lin in lin_results else 0 for lin in names] for lin_results in sample_results]).T
+    # lin_fractions = np.array([[lin_results[lin]*100 if lin in lin_results else -1 for lin in names] for lin_results in sample_results]).T
+    # no_reads = np.array([[f == -1 for f in fractions] for fractions in lin_fractions])
     # fig, ax = plt.subplots(figsize=(len(sample_names)/2,len(names)/2))
     ax = sns.heatmap(
         lin_fractions,
@@ -89,7 +92,7 @@ def plot_lineages(sample_results, sample_names):
     # ax.figure.tight_layout()
     # mng = plt.get_current_fig_manager()
     # mng.frame.Maximize(True)
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.show()
 
 
@@ -243,7 +246,77 @@ def do_regression(lmps, Y):
                     best_reg = new_reg
         if not valid:
             print('Warning: solutions sums to > 1')
-    return X, best_reg
+    return X, [frac for frac in best_reg.coef_]
+
+
+def do_regression_linear(lmps, Y, muts):
+    # Linear program for minimizing error of frequencies
+    import numpy as np
+    # from sklearn.linear_model import LinearRegression
+    # from sklearn.linear_model import Lasso
+    from ortools.linear_solver import pywraplp
+    from ortools.init import pywrapinit
+    solver = pywraplp.Solver.CreateSolver('GLOP')
+    num_lins = len(lmps)
+    num_muts = len(lmps[0])
+    lins = [solver.NumVar(0, 1, 'x_{}'.format(i)) for i in range(num_lins)]
+    t = [solver.NumVar(0, solver.infinity(), 't_{}'.format(i)) for i in range(num_muts)]
+    # t = [solver.NumVar(0, 1, 't_{}'.format(i)) for i in range(num_muts)]
+    # t = [solver.NumVar(-1, 1, 't_{}'.format(i)) for i in range(num_muts)]
+    constraints_1 = []
+    constraints_2 = []
+    # print(lmps)
+    mut_freqs = list(Y)
+    # print(mut_freqs)
+    for j in range(num_muts):
+        constraints_1.append(solver.Constraint(-solver.infinity(), mut_freqs[j], 'c_{}_1'.format(j)))
+        constraints_2.append(solver.Constraint(mut_freqs[j], solver.infinity(), 'c_{}_2'.format(j)))
+        constraints_1[j].SetCoefficient(t[j], -1)
+        constraints_2[j].SetCoefficient(t[j], 1)
+        for i in range(num_lins):
+            constraints_1[j].SetCoefficient(lins[i], lmps[i][j])
+            constraints_2[j].SetCoefficient(lins[i], lmps[i][j])
+    freqs = solver.Constraint(0, solver.infinity(), 'frequencies')
+    # freqs = solver.Constraint(0, 1, 'frequencies')
+    for i in range(num_lins):
+        freqs.SetCoefficient(lins[i], 1)
+    objective = solver.Objective()
+    for j in range(num_muts):
+        objective.SetCoefficient(t[j], 1)
+    objective.SetMinimization()
+    status = solver.Solve()
+    # print('Lineage abundances:')
+    # for i in range(num_lins):
+    #     print(lins[i].solution_value())
+    print('Residuals:')
+    sig_idxs = []
+    diffs = []
+    mut_diffs = {}
+    for j in range(num_muts):
+        res = t[j].solution_value()
+        yp = sum([lins[i].solution_value() * lmps[i][j] for i in range(num_lins)])
+        diffs.append(Y[j] - yp)
+        mut_diffs[muts[j]] = diffs[j]
+        if res > 0.1:
+            print(muts[j])
+            print(res)
+            print(diffs[j])
+            sig_idxs.append(j)
+    if len(sig_idxs) > 0 and False:
+        d = {}
+        d['muts'] = [muts[i] for i in sig_idxs]
+        d['residuals'] = [diffs[i] for i in sig_idxs]
+        # d = {muts[i]: t[i].solution_value() for i in range(num_muts)}
+        import matplotlib.pyplot as plt
+        import pandas as pd
+        df = pd.DataFrame(data=d)
+        # df = df.loc[:, df.any()] # Delete all-zero lineages
+        df.plot.bar(x='muts', y='residuals')
+        plt.tight_layout()
+        plt.show()
+    X = np.array(lmps).T
+
+    return X, [lin.solution_value() for lin in lins], mut_diffs
 
 
 def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=True):
@@ -257,10 +330,12 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
     # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['N']] # Only N
     aa_blacklist = ['S:D614G'] # all lineages contain this now
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
+    # lineages = ['Delta', 'BA.1']
     if len(lineages) == 0:
         lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
     if unique:
         aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
+    alpha_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in ['Alpha']) == 1]
     mutations = parse_mutations(aa_mutations)
     vocs = ['B.1.1.7', 'B.1.617.2', 'P.1', 'B.1.351']
     vois = ['B.1.525', 'B.1.526', 'B.1.617.1', 'C.37']
@@ -270,7 +345,7 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
 
     mut_results = find_mutants_in_bam(bam_path, aa_mutations)
 
-    covered_muts = [m for m in aa_mutations if sum(mut_results[m]) > min_depth]
+    covered_muts = [m for m in aa_mutations if sum(mut_results[m]) >= min_depth]
     if len(covered_muts) == 0:
         print('No coverage')
         return None
@@ -295,10 +370,12 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
         else:
             merged_lmps.append(lmp)
             merged_lins.append(lin)
+    # X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
     X, reg = do_regression(merged_lmps, Y)
 
-    print_mut_results(mut_results)
-    sample_results = {merged_lins[i]: round(reg.coef_[i], 3) for i in range(len(merged_lins))}
+    # print_mut_results(mut_results)
+    sample_results = {merged_lins[i]: round(reg[i], 3) for i in range(len(merged_lins))}
+    print(sample_results)
     # Normalize frequencies
     freq_sum = sum(sample_results[lin] for lin in sample_results)
     for lin in sample_results:
@@ -306,6 +383,8 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
 
     if return_data:
         return sample_results, X, Y, covered_muts
+    # TODO: rethink information flow
+    # return sample_results, mut_diffs
     return sample_results
 
 
@@ -317,6 +396,7 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
     """
 
     sample_results = []
+    sample_mut_diffs = defaultdict(list)
     sample_names = []
 
     lineages = []
@@ -336,11 +416,22 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
         for sample in samples:
             if sample[0].endswith('.bam'): # Mostly for filtering empty
                 print('{}:'.format(sample[1]))
+                # sample_result, mut_diffs = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique)
                 sample_result = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique)
-                if sample_result is not None:
+                if sample_result is not None and sum(sample_result.values()) > 0:
                     sample_results.append(sample_result)
                     sample_names.append(sample[1])
+                    # for mut in mut_diffs:
+                    #     sample_mut_diffs[mut].append(mut_diffs[mut])
+                # sample_results.append(sample_result)
+                # sample_names.append(sample[1])
                 print()
+    # print(sample_mut_diffs)
+    for mut in sample_mut_diffs:
+        diffs = sample_mut_diffs[mut]
+        if abs(sum(diffs)/len(diffs)) > 0.1:
+            print(mut)
+            print(diffs)
     if ts:
         plot_lineages_timeseries(sample_results, sample_names)
     else:

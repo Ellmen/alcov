@@ -43,23 +43,37 @@ def mut_in_col(pileupcolumn, mut):
     return muts, not_muts
 
 
-def print_mut_results(mut_results):
+def print_mut_results(mut_results, min_depth):
+    cov = 0
+    mut_cov = 0
     for name in mut_results:
         muts, not_muts = mut_results[name]
-        new_base = name[-1]
-        print('{}:'.format(name))
+        # new_base = name[-1]
+        # print('{}:'.format(name))
         total = muts + not_muts
-        if total == 0:
-            print('No coverage of {}'.format(name))
-        else:
-            print('{} are {}, {} are wildtype ({:.2f}% of {} total)'.format(
-                muts,
-                new_base,
-                not_muts,
-                muts/total*100,
-                total
-            ))
+        if total >= min_depth:
+            cov += 1
+            if muts > 0:
+                mut_cov += 1
 
+    # for name in mut_results:
+    #     muts, not_muts = mut_results[name]
+    #     new_base = name[-1]
+    #     print('{}:'.format(name))
+    #     total = muts + not_muts
+    #     if total == 0:
+    #         print('No coverage of {}'.format(name))
+    #     else:
+    #         print('{} are {}, {} are wildtype ({:.2f}% of {} total)'.format(
+    #             muts,
+    #             new_base,
+    #             not_muts,
+    #             muts/total*100,
+    #             total
+    #         ))
+
+    print('{}/{} mutations covered'.format(cov, len(mut_results)))
+    print('{}/{} mutations detected'.format(mut_cov, len(mut_results)))
 
 def plot_mutations(sample_results, sample_names, min_depth):
     import numpy as np
@@ -74,7 +88,8 @@ def plot_mutations(sample_results, sample_names, min_depth):
             count = counts[i]
             total = count[0] + count[1]
             fraction = count[0]/total if total >= min_depth else -1
-            mut_fractions[i].append(round(fraction, 2))
+            # mut_fractions[i].append(round(fraction, 2))
+            mut_fractions[i].append(round(fraction, 4))
     no_reads = np.array([[f == -1 for f in fractions] for fractions in mut_fractions])
     ax = sns.heatmap(
         mut_fractions,
@@ -102,7 +117,7 @@ def find_mutants_in_bam(bam_path, mutations):
         parsed_muts[mut] = parse_mutation(mut)
     mut_results = {mut: {snv_name(m): [0,0] for m in parsed_muts[mut]} for mut in mutations}
 
-    for pileupcolumn in samfile.pileup():
+    for pileupcolumn in samfile.pileup(stepper='nofilter'):
         pos = pileupcolumn.pos + 1
         for mut in parsed_muts:
             for m in parsed_muts[mut]:
@@ -121,8 +136,6 @@ def find_mutants_in_bam(bam_path, mutations):
                 max_freq = freq
                 max_muts = [muts, not_muts]
         mut_results[mut] = max_muts
-
-    print_mut_results(mut_results)
 
     return mut_results
 
@@ -146,12 +159,14 @@ def find_mutants(file_path, mutations_path, min_depth):
     sample_results = []
     sample_names = []
     lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+    print(lineages)
     if mutations_path in lineages:
         lin = mutations_path
         print('Searcing for {} mutations'.format(lin))
         mutations = [mut for mut in mut_lins if mut_lins[mut][lin] > 0 and mut_idx(mut) != -1]
         # Unique
-        mutations = [mut for mut in mutations if all(mut_lins[mut][l] == 0 for l in lineages if l != lin)]
+        # mutations = [mut for mut in mutations if all(mut_lins[mut][l] == 0 for l in lineages if l != lin)]
+        mutations = [mut for mut in mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
         mutations.sort(key=mut_idx)
     else:
         print('Searching for mutations in {}'.format(mutations_path))
@@ -169,5 +184,7 @@ def find_mutants(file_path, mutations_path, min_depth):
                 print('{}:'.format(sample[1]))
                 sample_results.append(find_mutants_in_bam(sample[0], mutations))
                 sample_names.append(sample[1])
+                print_mut_results(sample_results[-1], min_depth)
                 print()
+
     plot_mutations(sample_results, sample_names, min_depth)

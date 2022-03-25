@@ -74,22 +74,35 @@ def get_who_mutations():
         if 'who_name' in lin and len(lin['who_name']) > 0:
             vocs.append(lin)
     mutations = {}
-    who_names = [voc['who_name'][0] for voc in vocs] + ['BA.2']
+    who_names = [voc['who_name'][0] for voc in vocs] + ['BA.1', 'BA.2']
+    print(who_names)
+    who_names = [wn for wn in who_names if wn != 'Omicron']
+    print(who_names)
     for voc in vocs:
         who_name = voc['who_name'][0]
         adn = 'alt_display_name'
         if adn in voc and len(voc[adn]) and voc[adn][0] == 'BA.2':
             who_name = 'BA.2'
+        # if adn in voc and len(voc[adn]) and voc[adn][0] == 'BA.1':
+        if who_name == 'Omicron':
+            who_name = 'BA.1'
         muts = voc['mutations']['nonsynonymous']
-        # muts += voc['mutations']['synonymous']
+        muts += voc['mutations']['synonymous']
         for mut in muts:
-            if mut['gene'] == 'ORF9b':
-                continue
-            if mut['right'] == '-':
-                mut_name = '{}:DEL{}'.format(mut['gene'], mut['pos'])
+            if 'gene' in mut:
+                if mut['gene'] == 'ORF9b':
+                    continue
+                if mut['right'] == '-':
+                    mut_name = '{}:DEL{}'.format(mut['gene'], mut['pos'])
+                else:
+                    mut_name = '{}:{}{}{}'.format(
+                        mut['gene'],
+                        mut['left'],
+                        mut['pos'],
+                        mut['right']
+                    )
             else:
-                mut_name = '{}:{}{}{}'.format(
-                    mut['gene'],
+                mut_name = '{}{}{}'.format(
                     mut['left'],
                     mut['pos'],
                     mut['right']
@@ -104,6 +117,9 @@ def get_who_mutations():
                 'S:L212I',
                 # BA.2 post-deletion
                 'S:A27S',
+                # Possibly in Omicron
+                'ORF1a:DEL3677',
+                'S:R346K',
                 # Delta post-deletion
                 'S:R158G'
             ]
@@ -112,6 +128,7 @@ def get_who_mutations():
             if mut_name not in mutations:
                 mutations[mut_name] = {who_name: 0 for who_name in who_names}
             mutations[mut_name][who_name] = 1
+
     with open('mutations.py', 'w') as f:
          f.write('mutations = {}'.format(mutations))
 
