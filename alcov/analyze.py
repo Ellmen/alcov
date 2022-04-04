@@ -75,7 +75,7 @@ def print_mut_results(mut_results, min_depth):
     print('{}/{} mutations covered'.format(cov, len(mut_results)))
     print('{}/{} mutations detected'.format(mut_cov, len(mut_results)))
 
-def plot_mutations(sample_results, sample_names, min_depth):
+def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
@@ -99,11 +99,17 @@ def plot_mutations(sample_results, sample_names, min_depth):
         xticklabels=sample_names,
         yticklabels=names,
         vmin=0,
-        vmax=1
+        vmax=1,
     )
     plt.xlabel('Sample')
+    plt.xticks(rotation=30)
     plt.ylabel('Mutation')
-    plt.show()
+    # plt.show()
+    plt.tight_layout()
+    if img_path is not None:
+        plt.savefig(img_path, dpi=300)
+    else:
+        plt.show()
 
 
 def find_mutants_in_bam(bam_path, mutations):
@@ -149,7 +155,7 @@ def mut_idx(mut):
 
 
 # def find_mutants(file_path, mutations_path, min_depth, not_in): #TODO: not in lineage
-def find_mutants(file_path, mutations_path, min_depth):
+def find_mutants(file_path, mutations_path, min_depth, save_img):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -187,4 +193,6 @@ def find_mutants(file_path, mutations_path, min_depth):
                 print_mut_results(sample_results[-1], min_depth)
                 print()
 
-    plot_mutations(sample_results, sample_names, min_depth)
+    mutants_name = mutations_path.replace('.txt', '').replace('.', '')
+    img_path = file_path.replace('.txt', '_{}_mutants.png'.format(mutants_name)) if save_img else None
+    plot_mutations(sample_results, sample_names, min_depth, img_path)
