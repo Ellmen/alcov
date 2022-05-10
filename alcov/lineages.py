@@ -57,15 +57,14 @@ def write_csv(sample_results, sample_names):
         f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 
-def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
+def plot_lineages(sample_results, sample_names, img_path):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
     names = set()
     for sr in sample_results:
         for key in sr.keys():
-            if sr[key] > 0.001 or all_lins:
-                names.add(key)
+            names.add(key)
     names = [n for n in names]
     names.sort()
     # names = sample_results[0].keys()
@@ -73,9 +72,12 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     # lin_fractions = np.array([[lin_results[lin]*100 if lin in lin_results else -1 for lin in names] for lin_results in sample_results]).T
     # no_reads = np.array([[f == -1 for f in fractions] for fractions in lin_fractions])
     # fig, ax = plt.subplots(figsize=(len(sample_names)/2,len(names)/2))
-    ax = sns.heatmap(
+    
+    plt.figure(figsize=(16,9))
+    sns.heatmap(
         lin_fractions,
         annot=True,
+        annot_kws={'fontsize':10},
         # mask=no_reads,
         cmap=sns.cm.rocket_r,
         xticklabels=sample_names,
@@ -87,17 +89,23 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
         fmt='.1f',
         # cbar=False,
     )
+    # plt.title("Test2")
     plt.xlabel('Frequency in sample')
     plt.ylabel('SARS-CoV-2 lineage')
-    # plt.subplots_adjust(bottom=0.3, left=0.3)
+    plt.yticks(rotation='horizontal')
+    plt.subplots_adjust(bottom=0.3, left=0.3)
     # ax.figure.tight_layout()
     # mng = plt.get_current_fig_manager()
     # mng.frame.Maximize(True)
-    plt.tight_layout()
-    if img_path is not None:
-        plt.savefig(img_path, dpi=300)
-    else:
-        plt.show()
+    # plt.tight_layout()
+    # plt.autoscale()
+    # plt.show()
+    plt.savefig(img_path, dpi=300)
+    
+    # if img_path is not None:
+    #     plt.savefig(img_path, dpi=300)
+    # else:
+    #     plt.show()
 
 
 def plot_lineages_timeseries(sample_results, sample_names):
@@ -339,6 +347,7 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
         lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
     if unique:
         aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
+    alpha_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in ['Alpha']) == 1]
     mutations = parse_mutations(aa_mutations)
     vocs = ['B.1.1.7', 'B.1.617.2', 'P.1', 'B.1.351']
     vois = ['B.1.525', 'B.1.526', 'B.1.617.1', 'C.37']
@@ -403,9 +412,7 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
     sample_names = []
 
     lineages = []
-    all_lins = False # Show all lineages
     if lineages_path is not None:
-        all_lins = True
         with open(lineages_path, 'r') as f:
             lineages = f.read().splitlines()
     if file_path.endswith('.bam'):
@@ -441,6 +448,6 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
     if ts:
         plot_lineages_timeseries(sample_results, sample_names)
     else:
-        plot_lineages(sample_results, sample_names, img_path, all_lins)
+        plot_lineages(sample_results, sample_names, img_path)
     if csv:
         write_csv(sample_results, sample_names)
