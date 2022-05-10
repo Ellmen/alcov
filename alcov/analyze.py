@@ -172,7 +172,7 @@ def find_mutants(file_path, mutations_path, min_depth, save_img):
         mutations = [mut for mut in mut_lins if mut_lins[mut][lin] > 0 and mut_idx(mut) != -1]
         # Unique
         # mutations = [mut for mut in mutations if all(mut_lins[mut][l] == 0 for l in lineages if l != lin)]
-        mutations = [mut for mut in mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
+        # mutations = [mut for mut in mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
         mutations.sort(key=mut_idx)
     else:
         print('Searching for mutations in {}'.format(mutations_path))

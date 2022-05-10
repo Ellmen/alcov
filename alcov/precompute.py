@@ -140,11 +140,16 @@ def get_constellations():
 
     def parse_mut(mut):
         mut = mut.upper()
+        if mut[0].isnumeric():
+            mut = 'ORF' + mut
         mut = mut.replace('SPIKE', 'S')
         mut = mut.replace('NUC:', '')
         mut = mut.replace('ORF1AB', 'ORF1ab')
         mut = mut.replace('ORF1A', 'ORF1a')
         mut = mut.replace('ORF1B', 'ORF1b')
+        mut = mut.replace('ORF3A', 'ORF3a')
+        mut = mut.replace('ORF7A', 'ORF7a')
+        mut = mut.replace('ORF7b', 'ORF7b')
         return mut
 
     home = getenv("HOME")
@@ -153,18 +158,38 @@ def get_constellations():
 
     fns = [f for f in listdir(data_path) if isfile(join(data_path, f)) and f.endswith('.json')]
     fns.sort()
+    constellations = {}
     mutations = {}
     for fn in fns:
         with open('{}/{}'.format(data_path, fn), 'r') as f:
             voc = json.loads(f.read())
         label = voc['label']
-        mutations[label] = [parse_mut(mut) for mut in voc['sites']]
-    for c in mutations:
-        if c.startswith('Omicron'):
-            print(c)
-            print('\n'.join(mutations[c]))
+        constellations[label] = [parse_mut(mut) for mut in voc['sites']]
     with open('constellations.py', 'w') as f:
-         f.write('constellations = {}'.format(mutations))
+         f.write('constellations = {}'.format(constellations))
+    vocs = list(constellations.keys())
+    # Remove non-specific lineages
+    constellations['Omicron (XE-like)'] += constellations['XE-parent1']
+    constellations['Omicron (XE-like)'] += constellations['XE-parent2']
+    for voc in constellations:
+        if 'Omicron' in voc:
+            constellations[voc] += constellations['Omicron (Unassigned)']
+    vocs.remove('Omicron (Unassigned)')
+    vocs.remove('XE-parent1')
+    vocs.remove('XE-parent2')
+    for voc in vocs:
+        for mut_name in constellations[voc]:
+            # if mut_name in blacklist:
+            #     continue
+            if '+' in mut_name: # TODO: support
+                continue
+            if mut_name.startswith('NSP'): # TODO: support
+                continue
+            if mut_name not in mutations:
+                mutations[mut_name] = {voc: 0 for voc in vocs}
+            mutations[mut_name][voc] = 1
+    with open('mutations.py', 'w') as f:
+         f.write('mutations = {}'.format(mutations))
 
 
 if __name__ == '__main__':

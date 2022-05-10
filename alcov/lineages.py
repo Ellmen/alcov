@@ -57,14 +57,15 @@ def write_csv(sample_results, sample_names):
         f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 
-def plot_lineages(sample_results, sample_names, img_path=None):
+def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
     names = set()
     for sr in sample_results:
         for key in sr.keys():
-            names.add(key)
+            if sr[key] > 0.001 or all_lins:
+                names.add(key)
     names = [n for n in names]
     names.sort()
     # names = sample_results[0].keys()
@@ -338,7 +339,6 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
         lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
     if unique:
         aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
-    alpha_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in ['Alpha']) == 1]
     mutations = parse_mutations(aa_mutations)
     vocs = ['B.1.1.7', 'B.1.617.2', 'P.1', 'B.1.351']
     vois = ['B.1.525', 'B.1.526', 'B.1.617.1', 'C.37']
@@ -403,7 +403,9 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
     sample_names = []
 
     lineages = []
+    all_lins = False # Show all lineages
     if lineages_path is not None:
+        all_lins = True
         with open(lineages_path, 'r') as f:
             lineages = f.read().splitlines()
     if file_path.endswith('.bam'):
@@ -439,6 +441,6 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
     if ts:
         plot_lineages_timeseries(sample_results, sample_names)
     else:
-        plot_lineages(sample_results, sample_names, img_path)
+        plot_lineages(sample_results, sample_names, img_path, all_lins)
     if csv:
         write_csv(sample_results, sample_names)
