@@ -57,7 +57,7 @@ def write_csv(sample_results, sample_names):
         f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 
-def plot_lineages(sample_results, sample_names, img_path, all_lins=False):
+def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
@@ -95,12 +95,13 @@ def plot_lineages(sample_results, sample_names, img_path, all_lins=False):
     # ax.figure.tight_layout()
     # mng = plt.get_current_fig_manager()
     # mng.frame.Maximize(True)
-    plt.savefig(img_path, dpi=300)
+    # plt.savefig(img_path, dpi=300)
     # plt.tight_layout()
-    # if img_path is not None:
-    #     plt.savefig(img_path, dpi=300)
-    # else:
-    #     plt.show()
+    if img_path is not None:
+        # plt.subplots_adjust(bottom=0.3, left=0.3)
+        plt.savefig(img_path, dpi=300)
+    else:
+        plt.show()
 
 
 def plot_lineages_timeseries(sample_results, sample_names):
