@@ -73,9 +73,11 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     # lin_fractions = np.array([[lin_results[lin]*100 if lin in lin_results else -1 for lin in names] for lin_results in sample_results]).T
     # no_reads = np.array([[f == -1 for f in fractions] for fractions in lin_fractions])
     # fig, ax = plt.subplots(figsize=(len(sample_names)/2,len(names)/2))
-    ax = sns.heatmap(
+    plt.figure(figsize=(16,9))
+    sns.heatmap(
         lin_fractions,
         annot=True,
+        annot_kws={'fontsize':10},
         # mask=no_reads,
         cmap=sns.cm.rocket_r,
         xticklabels=sample_names,
@@ -93,8 +95,10 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     # ax.figure.tight_layout()
     # mng = plt.get_current_fig_manager()
     # mng.frame.Maximize(True)
-    plt.tight_layout()
+    # plt.savefig(img_path, dpi=300)
+    # plt.tight_layout()
     if img_path is not None:
+        # plt.subplots_adjust(bottom=0.3, left=0.3)
         plt.savefig(img_path, dpi=300)
     else:
         plt.show()
