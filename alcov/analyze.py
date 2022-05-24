@@ -1,3 +1,4 @@
+from .artic_amplicons import primers
 from .convert_mutations import aa, nt
 from .mutations import mutations as mut_lins
 
@@ -18,6 +19,11 @@ def parse_mutation(mut):
     else:
         muts = [mut]
     return [parse_snv(m) for m in muts]
+
+
+def get_lins(mut_lins):
+    some_mut = next(iter(mut_lins.keys()))
+    return list(mut_lins[some_mut].keys())
 
 
 def mut_in_col(pileupcolumn, mut):
@@ -79,7 +85,8 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
-    names = sample_results[0].keys()
+    names = list(sample_results[0].keys())
+    names.sort(key=mut_idx)
     sample_counts = [[mut_results[mut] for mut in names] for mut_results in sample_results]
     num_mutations = len(names)
     mut_fractions = [[] for _ in range(num_mutations)]
@@ -146,12 +153,57 @@ def find_mutants_in_bam(bam_path, mutations):
     return mut_results
 
 
+def in_primer(pos):
+    for primer in primers:
+        start = int(primer[1])
+        end = int(primer[2])
+        if start <= pos and end >= pos:
+            return True
+    return False
+
+
+def find_mutants_in_grom(grom_path, aa_mutations, filter_primers=True):
+    with open(grom_path, 'r') as f:
+        mut_lines = [line.split(',') for line in f.readlines()[1:]]
+    cov_path = grom_path.replace('.mapped.csv', '.coverage.csv')
+    with open(cov_path, 'r') as f:
+        cov_lines = [line.split(',') for line in f.readlines()[1:]]
+    loc_cov = [int(cl[1]) for cl in cov_lines]
+    mut_results = {}
+    for line in mut_lines:
+        pos = int(line[0])
+        if in_primer(pos):
+            continue
+        mut = line[2]
+        mut_name = '{}@{}'.format(mut, pos)
+        if mut_name not in aa_mutations:
+            continue
+        freq = float(line[3])
+        # if freq < 0.05:
+        #     freq = 0
+        coverage = int(line[4])
+        muts = round(freq * coverage)
+        not_muts = coverage - muts
+        mut_results[mut_name] = [muts, not_muts]
+
+    # aa_mutations = [m for m in mut_lins.keys()]
+    for mut_name in aa_mutations:
+        if mut_name not in mut_results:
+            mut, pos = mut_name.split('@')
+            pos = int(pos)
+            coverage = loc_cov[pos]
+            mut_results[mut_name] = [0,coverage]
+
+    return mut_results
+
+
 def mut_idx(mut):
     # Sort by genomic index of mutations
-    snvs = parse_mutation(mut)
-    if len(snvs) == 0:
-        return -1
-    return snvs[0][1]
+    # snvs = parse_mutation(mut)
+    # if len(snvs) == 0:
+    #     return -1
+    # return snvs[0][1]
+    return int(mut.split('@')[1])
 
 
 # def find_mutants(file_path, mutations_path, min_depth, not_in): #TODO: not in lineage
@@ -164,12 +216,16 @@ def find_mutants(file_path, mutations_path, min_depth, save_img):
 
     sample_results = []
     sample_names = []
-    lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
-    print(lineages)
+    # lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+    lineages = get_lins(mut_lins)
+    # lineages = list(mut_lins['aa:S:N501Y'].keys()) # arbitrary
+    # lineages = ['EPI_ISL_7190366', 'EPI_ISL_7877191', 'EPI_ISL_2793160', 'EPI_ISL_10389336']
+    # print(lineages)
     if mutations_path in lineages:
         lin = mutations_path
         print('Searcing for {} mutations'.format(lin))
-        mutations = [mut for mut in mut_lins if mut_lins[mut][lin] > 0 and mut_idx(mut) != -1]
+        # mutations = [mut for mut in mut_lins if mut_lins[mut][lin] > 0 and mut_idx(mut) != -1]
+        mutations = [mut for mut in mut_lins if mut_lins[mut][lin] > 0]
         # Unique
         # mutations = [mut for mut in mutations if all(mut_lins[mut][l] == 0 for l in lineages if l != lin)]
         # mutations = [mut for mut in mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
@@ -181,6 +237,9 @@ def find_mutants(file_path, mutations_path, min_depth, save_img):
 
     if file_path.endswith('.bam'):
         sample_results.append(find_mutants_in_bam(file_path, mutations))
+        sample_names.append('')
+    if file_path.endswith('.csv'):
+        sample_results.append(find_mutants_in_grom(file_path, mutations))
         sample_names.append('')
     else:
         with open(file_path, 'r') as f:

@@ -23,6 +23,8 @@ def get_amplicons():
     cov = list(SeqIO.parse("sequence.gb", "genbank"))[0]
     with open('nCoV-2019.insert.bed', 'r') as f:
         inserts = [l.split('\t') for l in f.read().split('\n')[:-1]]
+    with open('SARS-CoV-2.scheme.bed', 'r') as f:
+        primers = [l.split('\t') for l in f.readlines()]
 
     for i in range(len(inserts)):
         insert = inserts[i]
@@ -31,7 +33,7 @@ def get_amplicons():
         inserts[i].append(gc)
 
     with open('artic_amplicons.py', 'w') as f:
-        f.write('inserts = {}'.format(inserts))
+        f.write('inserts = {}\nprimers = {}'.format(inserts, primers))
 
 
 def fix_mut_name(old_mut_name):
@@ -192,9 +194,32 @@ def get_constellations():
          f.write('mutations = {}'.format(mutations))
 
 
+def get_challenge_mutations():
+    with open('challenge_mutations.json', 'r') as f:
+        lineages = json.loads(f.read())
+    mutations = {}
+    # lins = list(lineages.keys())
+    lins = {'EPI_ISL_7190366': 'BA.2', 'EPI_ISL_7877191': 'BA.1', 'EPI_ISL_2793160': 'Delta', 'EPI_ISL_10389336': 'Recombinant'}
+    for lin in lins:
+    # for lin in lineages:
+        for mut_name, loc in lineages[lin]:
+            # if 'ins' in mut_name: # TODO: support
+            #     continue
+            mut_name = '{}@{}'.format(mut_name, loc)
+            if mut_name not in mutations:
+                mutations[mut_name] = {lins[lin]: 0 for lin in lins}
+            mutations[mut_name][lins[lin]] = 1
+            # if mut_name not in mutations:
+            #     mutations[mut_name] = {lin: 0 for lin in lineages}
+            # mutations[mut_name][lin] = 1
+    with open('mutations.py', 'w') as f:
+         f.write('mutations = {}'.format(mutations))
+
+
 if __name__ == '__main__':
     # process_reference()
     # get_amplicons()
     # get_mutations()
-    get_who_mutations()
+    # get_who_mutations()
     # get_constellations()
+    get_challenge_mutations()

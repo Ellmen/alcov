@@ -1,7 +1,7 @@
 from collections import defaultdict
 from math import ceil, floor
 
-from .analyze import find_mutants_in_bam, print_mut_results
+from .analyze import find_mutants_in_bam, find_mutants_in_grom, get_lins, print_mut_results
 from .convert_mutations import aa, nt
 from .mutations import mutations as mut_lins
 
@@ -280,8 +280,8 @@ def do_regression_linear(lmps, Y, muts):
         for i in range(num_lins):
             constraints_1[j].SetCoefficient(lins[i], lmps[i][j])
             constraints_2[j].SetCoefficient(lins[i], lmps[i][j])
-    freqs = solver.Constraint(0, solver.infinity(), 'frequencies')
-    # freqs = solver.Constraint(0, 1, 'frequencies')
+    # freqs = solver.Constraint(0, solver.infinity(), 'frequencies')
+    freqs = solver.Constraint(0, 1, 'frequencies')
     for i in range(num_lins):
         freqs.SetCoefficient(lins[i], 1)
     objective = solver.Objective()
@@ -292,7 +292,7 @@ def do_regression_linear(lmps, Y, muts):
     # print('Lineage abundances:')
     # for i in range(num_lins):
     #     print(lins[i].solution_value())
-    print('Residuals:')
+    # print('Residuals:')
     sig_idxs = []
     diffs = []
     mut_diffs = {}
@@ -302,9 +302,9 @@ def do_regression_linear(lmps, Y, muts):
         diffs.append(Y[j] - yp)
         mut_diffs[muts[j]] = diffs[j]
         if res > 0.1:
-            print(muts[j])
-            print(res)
-            print(diffs[j])
+            # print(muts[j])
+            # print(res)
+            # print(diffs[j])
             sig_idxs.append(j)
     if len(sig_idxs) > 0 and False:
         d = {}
@@ -336,7 +336,7 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
     # lineages = ['Delta', 'BA.1']
     if len(lineages) == 0:
-        lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+        lineages = get_lins(mut_lins)
     if unique:
         aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
     mutations = parse_mutations(aa_mutations)
@@ -373,16 +373,86 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
         else:
             merged_lmps.append(lmp)
             merged_lins.append(lin)
-    # X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
-    X, reg = do_regression(merged_lmps, Y)
+    X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
+    # X, reg = do_regression(merged_lmps, Y)
 
     # print_mut_results(mut_results)
     sample_results = {merged_lins[i]: round(reg[i], 3) for i in range(len(merged_lins))}
     print(sample_results)
     # Normalize frequencies
-    freq_sum = sum(sample_results[lin] for lin in sample_results)
-    for lin in sample_results:
-        sample_results[lin] = sample_results[lin] / freq_sum
+    # freq_sum = sum(sample_results[lin] for lin in sample_results)
+    # for lin in sample_results:
+    #     sample_results[lin] = sample_results[lin] / freq_sum
+
+    if return_data:
+        return sample_results, X, Y, covered_muts
+    # TODO: rethink information flow
+    # return sample_results, mut_diffs
+    return sample_results
+
+
+def find_lineages_in_grom(grom_path, return_data=False, min_depth=40, lineages=[], unique=True):
+    import numpy as np
+    # import pysam
+
+    # # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['S']] # Only spike
+    # # aa_mutations = [m for m in mut_lins.keys() if m[0] in ['N']] # Only N
+    # aa_blacklist = ['S:D614G'] # all lineages contain this now
+    # aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
+    # # lineages = ['Delta', 'BA.1']
+    aa_mutations = [m for m in mut_lins.keys()]
+    if len(lineages) == 0:
+        lineages = get_lins(mut_lins)
+    if unique:
+        aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
+    # mutations = parse_mutations(aa_mutations)
+    # vocs = ['B.1.1.7', 'B.1.617.2', 'P.1', 'B.1.351']
+    # vois = ['B.1.525', 'B.1.526', 'B.1.617.1', 'C.37']
+    # # if only_vocs:
+    # # lineages = vocs + vois
+    # # lineages = ['Omicron', 'BA.2', 'Delta']
+
+    mut_results = find_mutants_in_grom(grom_path, aa_mutations)
+
+    covered_muts = [m for m in aa_mutations if sum(mut_results[m]) >= min_depth]
+    if len(covered_muts) == 0:
+        print('No coverage')
+        return None
+    covered_lineages = set()
+    for m in covered_muts:
+        for l in mut_lins[m]:
+            if mut_results[m][0] > 0 and mut_lins[m][l] > 0.5:
+                covered_lineages.add(l)
+    covered_lineages = [l for l in lineages if l in covered_lineages]
+    Y = np.array([mut_results[m][0]/sum(mut_results[m]) if sum(mut_results[m]) > 0 else 0 for m in covered_muts])
+    lin_mut_profiles = [[round(mut_lins[mut][lin]) for mut in covered_muts] for lin in lineages]
+    # Merge indistinguishable lineages
+    merged_lmps = []
+    merged_lins = []
+    for i in range(len(lineages)):
+        lmp = lin_mut_profiles[i]
+        lin = lineages[i]
+        if lmp in merged_lmps and False:
+            lmp_idx = merged_lmps.index(lmp)
+            merged_lins[lmp_idx] += ' or '
+            merged_lins[lmp_idx] += lin
+        else:
+            merged_lmps.append(lmp)
+            merged_lins.append(lin)
+    # print(merged_lmps)
+    X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
+    print('Sum of variants:')
+    print(sum(reg))
+    # X, reg = do_regression(merged_lmps, Y)
+
+    # print_mut_results(mut_results)
+    sample_results = {merged_lins[i]: round(reg[i], 3) for i in range(len(merged_lins))}
+    sample_results['Other'] = round(1 - sum(reg), 3) if sum(reg) < 1 else 0
+    print(sample_results)
+    # Normalize frequencies
+    # freq_sum = sum(sample_results[lin] for lin in sample_results)
+    # for lin in sample_results:
+    #     sample_results[lin] = sample_results[lin] / freq_sum
 
     if return_data:
         return sample_results, X, Y, covered_muts
@@ -415,14 +485,33 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
             show_lineage_pie(sr)
         sample_results.append(sr)
         sample_names.append('')
+    elif file_path.endswith('.csv'):
+        sr, X, Y, covered_muts = find_lineages_in_grom(file_path, True, min_depth, lineages, unique)
+        if show_stacked:
+            show_lineage_predictions(sr, X, Y, covered_muts)
+            show_lineage_pie(sr)
+        sample_results.append(sr)
+        sample_names.append('')
     else:
         with open(file_path, 'r') as f:
             samples = [line.split('\t') for line in f.read().split('\n')]
         for sample in samples:
+            # TODO: cleanup
             if sample[0].endswith('.bam'): # Mostly for filtering empty
                 print('{}:'.format(sample[1]))
                 # sample_result, mut_diffs = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique)
                 sample_result = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique)
+                if sample_result is not None and sum(sample_result.values()) > 0:
+                    sample_results.append(sample_result)
+                    sample_names.append(sample[1])
+                    # for mut in mut_diffs:
+                    #     sample_mut_diffs[mut].append(mut_diffs[mut])
+                # sample_results.append(sample_result)
+                # sample_names.append(sample[1])
+                print()
+            elif sample[0].endswith('.csv'):
+                print('{}:'.format(sample[1]))
+                sample_result = find_lineages_in_grom(sample[0], False, min_depth, lineages, unique)
                 if sample_result is not None and sum(sample_result.values()) > 0:
                     sample_results.append(sample_result)
                     sample_names.append(sample[1])
@@ -438,9 +527,9 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
             print(mut)
             print(diffs)
     img_path = file_path.replace('.txt', '.png') if save_img else None
-    if ts:
+    if csv:
+        write_csv(sample_results, sample_names)
+    elif ts:
         plot_lineages_timeseries(sample_results, sample_names)
     else:
         plot_lineages(sample_results, sample_names, img_path, all_lins)
-    if csv:
-        write_csv(sample_results, sample_names)
