@@ -196,5 +196,5 @@ if __name__ == '__main__':
     # process_reference()
     # get_amplicons()
     # get_mutations()
-    get_who_mutations()
-    # get_constellations()
+    # get_who_mutations()
+    get_constellations()
