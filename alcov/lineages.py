@@ -280,8 +280,8 @@ def do_regression_linear(lmps, Y, muts):
         for i in range(num_lins):
             constraints_1[j].SetCoefficient(lins[i], lmps[i][j])
             constraints_2[j].SetCoefficient(lins[i], lmps[i][j])
-    freqs = solver.Constraint(0, solver.infinity(), 'frequencies')
-    # freqs = solver.Constraint(0, 1, 'frequencies')
+    # freqs = solver.Constraint(0, solver.infinity(), 'frequencies')
+    freqs = solver.Constraint(0, 1, 'frequencies')
     for i in range(num_lins):
         freqs.SetCoefficient(lins[i], 1)
     objective = solver.Objective()
@@ -373,16 +373,16 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
         else:
             merged_lmps.append(lmp)
             merged_lins.append(lin)
-    # X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
-    X, reg = do_regression(merged_lmps, Y)
+    X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
+    # X, reg = do_regression(merged_lmps, Y)
 
     # print_mut_results(mut_results)
     sample_results = {merged_lins[i]: round(reg[i], 3) for i in range(len(merged_lins))}
     print(sample_results)
     # Normalize frequencies
-    freq_sum = sum(sample_results[lin] for lin in sample_results)
-    for lin in sample_results:
-        sample_results[lin] = sample_results[lin] / freq_sum
+    # freq_sum = sum(sample_results[lin] for lin in sample_results)
+    # for lin in sample_results:
+    #     sample_results[lin] = sample_results[lin] / freq_sum
 
     if return_data:
         return sample_results, X, Y, covered_muts
