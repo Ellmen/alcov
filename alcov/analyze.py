@@ -94,17 +94,18 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
     ax = sns.heatmap(
         mut_fractions,
         annot=True,
+	annot_kws={'fontsize':7},
         mask=no_reads,
         cmap=sns.cm.rocket_r,
         xticklabels=sample_names,
         yticklabels=names,
         vmin=0,
         vmax=1,
+	fmt='.2f',
     )
     plt.xlabel('Sample')
-    plt.xticks(rotation=30)
+    plt.xticks(rotation=30, ha="right", rotation_mode="anchor")
     plt.ylabel('Mutation')
-    # plt.show()
     plt.tight_layout()
     if img_path is not None:
         plt.savefig(img_path, dpi=300)
@@ -194,5 +195,6 @@ def find_mutants(file_path, mutations_path, min_depth, save_img):
                 print()
 
     mutants_name = mutations_path.replace('.txt', '').replace('.', '')
+  #  img_path = file_path.replace('.bam', '_{}_mutants.png'.format(mutants_name)) if save_img else None
     img_path = file_path.replace('.txt', '_{}_mutants.png'.format(mutants_name)) if save_img else None
     plot_mutations(sample_results, sample_names, min_depth, img_path)

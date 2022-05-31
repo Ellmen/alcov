@@ -77,7 +77,7 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     sns.heatmap(
         lin_fractions,
         annot=True,
-        annot_kws={'fontsize':10},
+        annot_kws={'fontsize':7},
         # mask=no_reads,
         cmap=sns.cm.rocket_r,
         xticklabels=sample_names,
