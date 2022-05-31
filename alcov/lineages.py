@@ -327,7 +327,7 @@ def do_regression_linear(lmps, Y, muts):
     return X, [lin.solution_value() for lin in lins], mut_diffs
 
 
-def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=True):
+def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=False):
     import numpy as np
     import pysam
 
