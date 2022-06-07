@@ -20,7 +20,7 @@ class CovBreakdown(object):
     def find_mutants(self, samples_path, mutations_path=None, min_depth=40, save_img=False):
         find_mutants(samples_path, mutations_path, min_depth, save_img)
 
-    def find_lineages(self, samples_path, lineages_path=None, ts=False, csv=False, min_depth=40, show_stacked=False, unique=True, save_img=False):
+    def find_lineages(self, samples_path, lineages_path=None, ts=False, csv=False, min_depth=40, show_stacked=False, unique=False, save_img=False):
         find_lineages(samples_path, lineages_path=lineages_path, ts=ts, csv=csv, min_depth=min_depth, show_stacked=show_stacked, unique=unique, save_img=save_img)
 
     def amplicon_coverage(self, samples_path):
