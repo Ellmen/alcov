@@ -98,7 +98,7 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     # plt.savefig(img_path, dpi=300)
     # plt.tight_layout()
     if img_path is not None:
-        # plt.subplots_adjust(bottom=0.3, left=0.3)
+        plt.subplots_adjust(bottom=0.3, left=0.3)
         plt.savefig(img_path, dpi=300)
     else:
         plt.show()
