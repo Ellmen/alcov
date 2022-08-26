@@ -152,19 +152,21 @@ def get_constellations():
         mut = mut.replace('ORF7b', 'ORF7b')
         return mut
 
-    home = getenv("HOME")
-    const_dir = '{}/Code/constellations'.format(home) # Fill in
-    data_path = '{}/constellations/definitions'.format(const_dir)
+    data_paths = [
+        './data/constellations/',
+        './data/extra_constellations/',
+    ]
 
-    fns = [f for f in listdir(data_path) if isfile(join(data_path, f)) and f.endswith('.json')]
-    fns.sort()
     constellations = {}
     mutations = {}
-    for fn in fns:
-        with open('{}/{}'.format(data_path, fn), 'r') as f:
-            voc = json.loads(f.read())
-        label = voc['label']
-        constellations[label] = [parse_mut(mut) for mut in voc['sites']]
+    for data_path in data_paths:
+        fns = [f for f in listdir(data_path) if isfile(join(data_path, f)) and f.endswith('.json')]
+        fns.sort()
+        for fn in fns:
+            with open('{}/{}'.format(data_path, fn), 'r') as f:
+                voc = json.loads(f.read())
+            label = voc['label']
+            constellations[label] = [parse_mut(mut) for mut in voc['sites']]
     with open('constellations.py', 'w') as f:
          f.write('constellations = {}'.format(constellations))
     vocs = list(constellations.keys())
