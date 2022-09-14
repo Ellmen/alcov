@@ -2,7 +2,7 @@ from .artic_amplicons import inserts
 from .convert_mutations import aa, nt
 
 
-inserts = inserts[70:85]
+inserts = inserts[1:98]
 
 def plot_depths(sample_results, sample_names):
     import numpy as np
@@ -29,6 +29,7 @@ def plot_depths(sample_results, sample_names):
     g.map(sns.barplot, "Amplicon number", "Log depth", order=[str(i) for i in range(1,99)], hue_order=['Pool 1', 'Pool 2'])
     # plt.locator_params(axis='x', nbins=20)
     plt.locator_params(axis='x')
+    plt.savefig('SA_coverage.png')
     plt.show()
 
 

@@ -91,21 +91,43 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
             # mut_fractions[i].append(round(fraction, 2))
             mut_fractions[i].append(round(fraction, 4))
     no_reads = np.array([[f == -1 for f in fractions] for fractions in mut_fractions])
+
+# get the tick label font size
+    fontsize_pt = plt.rcParams['ytick.labelsize']
+    dpi = 72.27
+
+# comput the matrix height in points and inches
+    matrix_height_pt = fontsize_pt * (len(mut_fractions)+30)
+    matrix_height_in = matrix_height_pt / dpi
+
+# compute the required figure height 
+    top_margin = 0.10  # in percentage of the figure height
+    bottom_margin = 0.20 # in percentage of the figure height
+    figure_height = matrix_height_in / (1 - top_margin - bottom_margin)
+    figure_width = len(sample_names) * 2 + 5
+
+# build the figure instance with the desired height
+    fig, ax = plt.subplots(
+        figsize=(figure_width, figure_height), 
+        gridspec_kw=dict(top=1-top_margin, bottom=bottom_margin),
+)
+
     ax = sns.heatmap(
         mut_fractions,
         annot=True,
+	# annot_kws={'fontsize':10},
         mask=no_reads,
         cmap=sns.cm.rocket_r,
         xticklabels=sample_names,
         yticklabels=names,
         vmin=0,
         vmax=1,
+	fmt='.2f',
     )
     plt.xlabel('Sample')
-    plt.xticks(rotation=30)
+    plt.xticks(rotation=30, ha="right", rotation_mode="anchor")
     plt.ylabel('Mutation')
-    # plt.show()
-    plt.tight_layout()
+    # plt.tight_layout()
     if img_path is not None:
         plt.savefig(img_path, dpi=300)
     else:
@@ -172,7 +194,7 @@ def find_mutants(file_path, mutations_path, min_depth, save_img):
         mutations = [mut for mut in mut_lins if mut_lins[mut][lin] > 0 and mut_idx(mut) != -1]
         # Unique
         # mutations = [mut for mut in mutations if all(mut_lins[mut][l] == 0 for l in lineages if l != lin)]
-        # mutations = [mut for mut in mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
+        mutations = [mut for mut in mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
         mutations.sort(key=mut_idx)
     else:
         print('Searching for mutations in {}'.format(mutations_path))
@@ -194,5 +216,6 @@ def find_mutants(file_path, mutations_path, min_depth, save_img):
                 print()
 
     mutants_name = mutations_path.replace('.txt', '').replace('.', '')
+  #  img_path = file_path.replace('.bam', '_{}_mutants.png'.format(mutants_name)) if save_img else None
     img_path = file_path.replace('.txt', '_{}_mutants.png'.format(mutants_name)) if save_img else None
     plot_mutations(sample_results, sample_names, min_depth, img_path)
