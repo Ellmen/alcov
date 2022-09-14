@@ -1,0 +1,68 @@
+{
+    "label": "Omicron (BA.4.6-like)",
+    "description": "BA.4.6 lineage defining mutations",
+    "sources": [
+    ],
+    "type": "variant",
+    "variant": {
+        "Pango_lineages": [
+            "BA.4.6"
+        ],
+        "WHO_label": "Omicron",
+	      "mrca_lineage": "BA.4.6",
+        "lineage_name": "BA.4.6",
+        "parent_lineage": "BA.4",
+        "representative_genome": ""
+    },
+    "tags": [
+        "BA.4.6"
+    ],
+    "sites": [
+      "orf1ab:S135R",
+      "orf1ab:T842I",
+      "orf1ab:G1307S",
+      "nuc:C4321T",
+      "orf1ab:T3090I",
+      "nuc:C10198T",
+      "nuc:G10447A",
+      "del:11288:9",
+      "nuc:G12160A",
+      "nuc:C12880T",
+      "nuc:C15714T",
+      "orf1ab:R5716C",
+      "orf1ab:T6564I",
+      "nuc:A20055G",
+      "spike:T19I",
+      "s:HV69-",
+      "spike:V213G",
+      "spike:S371F",
+      "spike:T376A",
+      "spike:D405N",
+      "spike:L452R",
+      "spike:F486V",
+	"spike:R346T",
+      "nuc:C25000T",
+      "nuc:C25584T",
+      "nuc:C26060T",
+      "nuc:C26858T",
+	"nuc:C8140T",
+	"nuc:C14599T",
+	"nuc:G22599C",
+      "orf6:D61L",
+      "nuc:G27788T",
+      "n:P151S",
+      "n:RG203KR",
+      "n:S413R"
+    ],
+    "note": "Unique mutations for sublineage",
+    "rules": {
+      "default": {
+        "min_alt": 29,
+        "max_ref": 5,
+        "m:D3N":"ref",
+        "s:Q493":"ref",
+        "orf6:D61":"not ref",
+        "n:P151S":"alt"
+      }
+    }
+}
