@@ -62,8 +62,11 @@ alcov find_lineages reads.bam lineages.txt
 Where `lineages.txt` looks like:
 
 ```
-Omicron
-Delta
+Delta (AY.4-like)
+Omicron (BA.1-like)
+Omicron (BA.2-like)
+Omicron (BA.4-like)
+Omicron (BA.5-like)
 ...
 ```
 
