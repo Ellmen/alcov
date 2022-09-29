@@ -83,8 +83,8 @@ for read1 in all_fastq:
         subprocess.run(['samtools', 'index', output_dir+base+'-sorted.bam'])
 
     # Remove large intermediate files
-        subprocess.run(['rm', data_path+'*prepped*'])
-        subprocess.run(['rm', ourput_dir+base+'*.sam'])
+        subprocess.run(['rm', data_path+*'prepped'*])
+        subprocess.run(['rm', output_dir+base+'.sam'])
 
     # Adding the path for the bam file and the sample name to a list    
         samples.append([output_dir+base+'-sorted.bam', base])
