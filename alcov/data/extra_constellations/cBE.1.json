@@ -46,13 +46,13 @@
       "m:D3N",
       "n:RG203KR",
       "n:S413R",
-	"n:E136D",
-	"orf1ab:Q376K",
-	"orf1ab:M233I",
-	"orf1a:L3829F",
-	"orf1a:Q556K",
-	"orf1b:M1156I",
-	"nuc:G29868A"
+      "n:E136D",
+      "orf1ab:Q376K",
+      "orf1ab:M233I",
+      "orf1a:L3829F",
+      "orf1a:Q556K",
+      "orf1b:M1156I",
+      "nuc:G29868A"
     ],
     "note": "Unique mutations for sublineage",
     "rules": {
