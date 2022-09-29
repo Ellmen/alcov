@@ -2,7 +2,7 @@ from .artic_amplicons import inserts
 from .convert_mutations import aa, nt
 
 
-inserts = inserts[1:98]
+# inserts = inserts[1:98]
 
 def plot_depths(sample_results, sample_names):
     import numpy as np
@@ -17,7 +17,7 @@ def plot_depths(sample_results, sample_names):
     amplicons = sum([list(amplicon.keys()) for amplicon in sample_results], [])
     # pools = ['Pool 1' if int(a) % 2 == 0 else 'Pool 2' for a in amplicons]
     pools = ['Pool 1' if True else 'Pool 2' for a in amplicons]
-    depths = sum([[np.log(max(a, 1)) for a in amplicon.values()] for amplicon in sample_results], [])
+    depths = sum([[np.log(a+1) for a in amplicon.values()] for amplicon in sample_results], [])
     d = {
         'Sample': samples,
         'Amplicon number': amplicons,
@@ -39,13 +39,16 @@ def plot_depths_gc(sample_results, sample_names):
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
     import seaborn as sns
+    from scipy import stats
     # sns.set_theme(style="whitegrid")
     depths = sample_results[0]
     samples = sum([98*[name] for name in sample_names], [])
+    # for i in range(len(samples)):
+    #     samples[i] = 'Test'
     amplicons = sum([list(amplicon.keys()) for amplicon in sample_results], [])
     gcs = [inserts[int(a)-1][6] for a in amplicons]
     pools = ['Pool 1' if int(a) % 2 == 0 else 'Pool 2' for a in amplicons]
-    depths = sum([[np.log(max(a, 1)) for a in amplicon.values()] for amplicon in sample_results], [])
+    depths = sum([[np.log(a+1) for a in amplicon.values()] for amplicon in sample_results], [])
     d = {
         'Sample': samples,
         'Amplicon number': [int(a) for a in amplicons],
@@ -54,9 +57,13 @@ def plot_depths_gc(sample_results, sample_names):
         'Log depth': depths
     }
     df = pd.DataFrame(data=d)
-    df = df.loc[df['Log depth'] != 0]
+    # df = df.loc[df['Log depth'] != 0]
     g = sns.FacetGrid(df, col="Sample")
     g.map(sns.regplot, "GC content", "Log depth")
+    statistic, pvalue = stats.pearsonr(gcs, depths)
+    print("Pearson correlation statistic: {}".format(statistic))
+    print("Pearson p-value (probability that variables are independant): {}".format(pvalue))
+    # print(res.confidence_interval())
     # g.map(sns.regplot, "Amplicon number", "Log depth")
     plt.show()
 
