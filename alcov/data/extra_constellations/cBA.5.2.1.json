@@ -50,7 +50,8 @@
       "nuc:A28330G",
       "m:D3N",
       "n:RG203KR",
-      "n:S413R"
+      "n:S413R",
+      "nuc:T6979G"
     ],
     "note": "Unique mutations for sublineage",
     "rules": {
