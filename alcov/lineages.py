@@ -327,7 +327,7 @@ def do_regression_linear(lmps, Y, muts):
     return X, [lin.solution_value() for lin in lins], mut_diffs
 
 
-def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=False):
+def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[], unique=False, l2=False):
     import numpy as np
     import pysam
 
@@ -377,8 +377,10 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
         else:
             merged_lmps.append(lmp)
             merged_lins.append(lin)
-    X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
-    # X, reg = do_regression(merged_lmps, Y)
+    if l2:
+        X, reg = do_regression(merged_lmps, Y)
+    else:
+        X, reg, mut_diffs = do_regression_linear(merged_lmps, Y, covered_muts)
 
     # print_mut_results(mut_results)
     sample_results = {merged_lins[i]: round(reg[i], 3) for i in range(len(merged_lins))}
@@ -395,7 +397,7 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
     return sample_results
 
 
-def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, unique, save_img):
+def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, unique, save_img, l2):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -413,7 +415,7 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
         with open(lineages_path, 'r') as f:
             lineages = f.read().splitlines()
     if file_path.endswith('.bam'):
-        sr, X, Y, covered_muts = find_lineages_in_bam(file_path, True, min_depth, lineages, unique)
+        sr, X, Y, covered_muts = find_lineages_in_bam(file_path, True, min_depth, lineages, unique, l2)
         if show_stacked:
             show_lineage_predictions(sr, X, Y, covered_muts)
             show_lineage_pie(sr)
@@ -426,7 +428,7 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
             if sample[0].endswith('.bam'): # Mostly for filtering empty
                 print('{}:'.format(sample[1]))
                 # sample_result, mut_diffs = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique)
-                sample_result = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique)
+                sample_result = find_lineages_in_bam(sample[0], False, min_depth, lineages, unique, l2)
                 if sample_result is not None and sum(sample_result.values()) > 0:
                     sample_results.append(sample_result)
                     sample_names.append(sample[1])
