@@ -37,7 +37,8 @@
         "spike:G446S",
         "orf3a:T223V",
         "nuc:C26858T",
-        "n:RG203KR",
+        "n:R203K", 
+        "n:G204R",
         "n:S413R"
     ],
     "note": "Unique mutations for sublineage",

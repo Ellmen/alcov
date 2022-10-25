@@ -33,7 +33,8 @@
         "del:21987:9",
         "del:22194:3",
         "nuc:22205+GAGCCAGAA",
-        "spike:S371L",
+        "nuc:T22673C", 
+        "nuc:C22674T",
         "spike:G446S",
         "spike:Q493R",
         "spike:G496S",
@@ -43,7 +44,8 @@
         "nuc:C25000T",
         "nuc:C25584T",
         "m:D3G",
-        "n:RG203KR"
+        "n:R203K", 
+        "n:G204R"
     ],
     "note": "Unique mutations for sublineage",
     "note2": "Requires ancestral mutation so scorpio tie breaks correctly",

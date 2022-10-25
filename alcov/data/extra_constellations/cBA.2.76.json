@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (BA.2.12.1-like)",
-    "description": "BA.2.12.1 lineage defining mutations",
+    "label": "Omicron (BA.2.76-like)",
+    "description": "BA.2.76 lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "BA.2.12.1"
+            "BA.2.76"
         ],
         "WHO_label": "Omicron",
-	"mrca_lineage": "BA.2.12.1",
-        "lineage_name": "BA.2.12.1",
+	"mrca_lineage": "BA.2.76",
+        "lineage_name": "BA.2.76",
         "parent_lineage": "BA.2",
         "representative_genome": ""
     },
     "tags": [
-        "BA.2.12.1"
+        "BA.2.76"
     ],
     "sites": [
         "orf1ab:S135R",
@@ -42,17 +42,20 @@
         "spike:D405N",
         "spike:R408S",
         "spike:Q493R",
-        "spike:L452Q",
-	    "spike:S704L",
-	    "nuc:C25000T",
+        "nuc:C25000T",
         "nuc:C25584T",
         "nuc:C26060T",
         "nuc:C26858T",
-        "nuc:G27382C",
+        "nuc:G27382C", 
         "nuc:A27383T",
         "n:R203K",
         "n:G204R",
-        "n:S413R"
+        "n:S413R",
+        "nuc:C25416T",
+        "nuc:T22304A",
+        "nuc:G22599C",
+        "nuc:A19812G",
+        "spike:Y248N"        
     ],
     "note": "Unique mutations for sublineage",
     "rules": {

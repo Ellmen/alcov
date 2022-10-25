@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (BA.2.12.1-like)",
-    "description": "BA.2.12.1 lineage defining mutations",
+    "label": "Omicron (BM.1.1.1-like)",
+    "description": "BM.1.1.1 lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "BA.2.12.1"
+            "BM.1.1.1"
         ],
         "WHO_label": "Omicron",
-	"mrca_lineage": "BA.2.12.1",
-        "lineage_name": "BA.2.12.1",
-        "parent_lineage": "BA.2",
+	"mrca_lineage": "BM.1.1.1",
+        "lineage_name": "BM.1.1.1",
+        "parent_lineage": "B.1.1.529",
         "representative_genome": ""
     },
     "tags": [
-        "BA.2.12.1"
+        "BM.1.1.1"
     ],
     "sites": [
         "orf1ab:S135R",
@@ -42,17 +42,37 @@
         "spike:D405N",
         "spike:R408S",
         "spike:Q493R",
-        "spike:L452Q",
-	    "spike:S704L",
-	    "nuc:C25000T",
+        "nuc:C25000T",
         "nuc:C25584T",
         "nuc:C26060T",
         "nuc:C26858T",
-        "nuc:G27382C",
+        "nuc:G27382C", 
         "nuc:A27383T",
-        "n:R203K",
+        "n:R203K", 
         "n:G204R",
-        "n:S413R"
+        "n:S413R",
+        "orf1a:N4060S",
+        "orf1a:S1221L",
+        "e:T11A",
+        "spike:K147E",
+        "spike:F157L",
+        "spike:W152R",
+        "spike:I210V",
+        "nuc:T22942G",
+        "spike:G257S",
+        "nuc:C3796T",
+        "nuc:C4586T",
+        "nuc:C5183T",
+        "nuc:A12444G",
+        "nuc:G15451A",
+        "nuc:G22577C", 
+        "nuc:G22578A",
+        "spike:G446S",
+        "orf1b:V1706I",
+        "spike:F486S",
+        "spike:R346T",
+        "spike:F490S",
+        "nuc:G261A"	        
     ],
     "note": "Unique mutations for sublineage",
     "rules": {

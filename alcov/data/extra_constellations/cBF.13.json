@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (BA.4.6-like)",
-    "description": "BA.4.6 lineage defining mutations",
+    "label": "Omicron (BF.13-like)",
+    "description": "BF.13 lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "BA.4.6"
+            "BF.13"
         ],
         "WHO_label": "Omicron",
-	      "mrca_lineage": "BA.4.6",
-        "lineage_name": "BA.4.6",
-        "parent_lineage": "BA.4",
+	      "mrca_lineage": "BF.13",
+        "lineage_name": "BF.13",
+        "parent_lineage": "BA.5",
         "representative_genome": ""
     },
     "tags": [
-        "BA.4.6"
+        "BF.13"
     ],
     "sites": [
       "orf1ab:S135R",
@@ -41,30 +41,34 @@
       "spike:D405N",
       "spike:L452R",
       "spike:F486V",
-      "spike:R346T",
       "nuc:C25000T",
       "nuc:C25584T",
       "nuc:C26060T",
-      "nuc:C26858T",
-      "nuc:C8140T",
-      "nuc:C14599T",
-      "nuc:G22599C",
-      "nuc:G27382C", 
-      "nuc:A27383T",
-      "nuc:G27788T",
-      "n:P151S",
-      "n:R203K",
+      "m:D3N",
+      "n:R203K", 
       "n:G204R",
-      "n:S413R"
+      "n:S413R",
+      "nuc:C1627T",
+      "nuc:G12310A",
+      "nuc:A28330G",
+      "nuc:A3859G",
+      "nuc:T6979G",
+      "nuc:A19337G",
+      "nuc:G26196A",
+      "nuc:A22600T",
+      "nuc:A8031G",
+      "nuc:T24079C"
     ],
     "note": "Unique mutations for sublineage",
     "rules": {
       "default": {
-        "min_alt": 29,
+        "min_alt": 27,
         "max_ref": 5,
-        "m:D3N":"ref",
         "s:Q493":"ref",
-        "n:P151S":"alt"
+        "nuc:C26858":"ref",
+        "nuc:G27788":"ref",
+        "n:P151":"ref",
+        "m:D3":"alt"
       }
     }
 }

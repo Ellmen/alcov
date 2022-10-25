@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (BA.2.12.1-like)",
-    "description": "BA.2.12.1 lineage defining mutations",
+    "label": "Omicron (BJ.1-like)",
+    "description": "BJ.1 lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "BA.2.12.1"
+            "BJ.1"
         ],
         "WHO_label": "Omicron",
-	"mrca_lineage": "BA.2.12.1",
-        "lineage_name": "BA.2.12.1",
-        "parent_lineage": "BA.2",
+	"mrca_lineage": "BJ.1",
+        "lineage_name": "BJ.1",
+        "parent_lineage": "B.1.1.529",
         "representative_genome": ""
     },
     "tags": [
-        "BA.2.12.1"
+        "BJ.1"
     ],
     "sites": [
         "orf1ab:S135R",
@@ -42,17 +42,36 @@
         "spike:D405N",
         "spike:R408S",
         "spike:Q493R",
-        "spike:L452Q",
-	    "spike:S704L",
-	    "nuc:C25000T",
+        "nuc:C25000T",
         "nuc:C25584T",
         "nuc:C26060T",
         "nuc:C26858T",
-        "nuc:G27382C",
+        "nuc:G27382C", 
         "nuc:A27383T",
-        "n:R203K",
+        "n:R203K", 
         "n:G204R",
-        "n:S413R"
+        "n:S413R",
+        "orf1b:S959P",
+        "spike:R346T",
+        "orf1a:K47R",
+        "nuc:C15738T",
+        "nuc:T15939C",
+        "nuc:T17859C",
+        "S:V83A",
+        "S:H146Q",
+        "S:Q183E",
+        "S:V213E",
+        "S:L368I",
+        "nuc:G22895C", 
+        "nuc:T22896C",
+        "S:V483A",
+        "S:F490V",
+        "S:G798D",
+        "S:S1003I",
+        "M:D3Y",
+        "orf7a:I110T",
+        "nuc:G28079T",
+        "N:T282I"
     ],
     "note": "Unique mutations for sublineage",
     "rules": {
