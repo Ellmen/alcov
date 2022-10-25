@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (BA.4.6-like)",
-    "description": "BA.4.6 lineage defining mutations",
+    "label": "Omicron (BA.4.7-like)",
+    "description": "BA.4.7 lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "BA.4.6"
+            "BA.4.7"
         ],
         "WHO_label": "Omicron",
-	      "mrca_lineage": "BA.4.6",
-        "lineage_name": "BA.4.6",
+	      "mrca_lineage": "BA.4.7",
+        "lineage_name": "BA.4.7",
         "parent_lineage": "BA.4",
         "representative_genome": ""
     },
     "tags": [
-        "BA.4.6"
+        "BA.4.7"
     ],
     "sites": [
       "orf1ab:S135R",
@@ -41,21 +41,21 @@
       "spike:D405N",
       "spike:L452R",
       "spike:F486V",
-      "spike:R346T",
       "nuc:C25000T",
       "nuc:C25584T",
       "nuc:C26060T",
       "nuc:C26858T",
-      "nuc:C8140T",
-      "nuc:C14599T",
-      "nuc:G22599C",
       "nuc:G27382C", 
       "nuc:A27383T",
       "nuc:G27788T",
       "n:P151S",
       "n:R203K",
       "n:G204R",
-      "n:S413R"
+      "n:S413R",
+      "S:R346S",
+      "orf3a:I47V",
+      "nuc:A10114G",
+      "nuc:G26690T"
     ],
     "note": "Unique mutations for sublineage",
     "rules": {
