@@ -80,6 +80,16 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
     names = sample_results[0].keys()
+#    print(names)
+# Print both aa and nt changes as Y-tick labels
+#    for i in range(len(names)):
+#        mutant = names[i]
+#        if ":" in mutant:
+#            mutant = mutant + " - " + aa(mutant)
+#        else:
+#            mutant = nt(mutant) + " - " + mutant
+#        names[i] = mutant
+#    print(names)
     sample_counts = [[mut_results[mut] for mut in names] for mut_results in sample_results]
     num_mutations = len(names)
     mut_fractions = [[] for _ in range(num_mutations)]
