@@ -53,6 +53,25 @@ def aa(mut):
         if codons[codon[0] + codon[1] + nts[i]] == new_acid:
             nt_muts.append('{}{}{}'.format(codon[2], nt_idx + 3, nts[i]))
 
+# if a single nt change cannot make this aa change, try all double nt changes
+#    
+#    if nt_muts == []:
+#        for i in range(4):
+#            for j in range(4):
+#                if codons[nts[i] + nts[j] + codon[2]] == new_acid:
+#                    nt_muts.append('{}{}{}'.format(codon[0], nt_idx + 1, nts[i]))
+#                    nt_muts.append('{}{}{}'.format(codon[1], nt_idx + 2, nts[j]))
+#        for i in range(4):
+#            for j in range(4):
+#                if codons[codon[0] + nts[i] + nts[j]] == new_acid:
+#                    nt_muts.append('{}{}{}'.format(codon[1], nt_idx + 2, nts[i]))
+#                    nt_muts.append('{}{}{}'.format(codon[2], nt_idx + 3, nts[j]))
+#        for i in range(4):
+#            for j in range(4):
+#                if codons[nts[i] + codon[1] + nts[j]] == new_acid:
+#                    nt_muts.append('{}{}{}'.format(codon[0], nt_idx + 1, nts[i]))
+#                    nt_muts.append('{}{}{}'.format(codon[2], nt_idx + 3, nts[j]))
+
     return nt_muts
 
 

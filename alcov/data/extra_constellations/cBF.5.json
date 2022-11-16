@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (BA.5.3-like)",
-    "description": "BA.5.3 lineage defining mutations",
+    "label": "Omicron (BF.5-like)",
+    "description": "BF.5-like lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "BA.5.3"
+            "BF.5"
         ],
         "WHO_label": "Omicron",
-	      "mrca_lineage": "BA.5.3",
-        "lineage_name": "BA.5.3",
-        "parent_lineage": "BA.5",
+	      "mrca_lineage": "BF.5",
+        "lineage_name": "BF.5",
+        "parent_lineage": "BA.5.2",
         "representative_genome": ""
     },
     "tags": [
-        "BA.5.3"
+        "BF.5"
     ],
     "sites": [
       "orf1ab:S135R",
@@ -48,10 +48,18 @@
       "n:R203K", 
       "n:G204R",
       "n:S413R",
-      "orf1b:M1156I",
-      "orf1a:Q556K",
-      "N:E136D",
-      "nuc:C11074T"
+      "nuc:C1627T",
+      "nuc:G12310A",
+      "nuc:A28330G",
+      "nuc:C50-",
+      "nuc:T54-",
+      "nuc:T6979G",
+      "nuc:A8882G",
+      "nuc:C9967T",
+      "nuc:C19524T",
+      "nuc:G24620T",
+      "nuc:C27532T",
+      "nuc:A28402G"
     ],
     "note": "Unique mutations for sublineage",
     "rules": {
