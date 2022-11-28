@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (BV.2-like)",
-    "description": "BV.2 lineage defining mutations",
+    "label": "Omicron (BA.5.2.27-like)",
+    "description": "BA.5.2 lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "BV.2"
+            "BA.5.2"
         ],
         "WHO_label": "Omicron",
-	      "mrca_lineage": "BV.2",
-        "lineage_name": "BV.2",
+	      "mrca_lineage": "BA.5.2",
+        "lineage_name": "BA.5.2",
         "parent_lineage": "BA.5",
         "representative_genome": ""
     },
     "tags": [
-        "BV.2"
+        "BA.5.2"
     ],
     "sites": [
       "orf1ab:S135R",
@@ -50,13 +50,7 @@
       "n:S413R",
       "nuc:C1627T",
       "nuc:G12310A",
-      "nuc:A28330G",
-      "spike:K444N",
-      "nuc:C23707T",
-      "orf1b:T1050N",
-      "nuc:C16616A",
-      "nuc:C27012T",
-      "nuc:C27513T"
+      "nuc:A28330G"
     ],
     "note": "Unique mutations for sublineage",
     "rules": {
