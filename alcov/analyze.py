@@ -100,6 +100,7 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
             fraction = count[0]/total if total >= min_depth else -1
             # mut_fractions[i].append(round(fraction, 2))
             mut_fractions[i].append(round(fraction, 4))
+        return mut_fractions
     no_reads = np.array([[f == -1 for f in fractions] for fractions in mut_fractions])
 
 # get the tick label font size
@@ -143,6 +144,28 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
     else:
         plt.show()
 
+def write_csv(sample_results, sample_names, min_depth):
+    names = sample_results[0].keys()
+    sample_counts = [[mut_results[mut] for mut in names] for mut_results in sample_results]
+    num_mutations = len(names)
+    mut_fractions = [[] for _ in range(num_mutations)]
+    for i in range(num_mutations):
+        for counts in sample_counts:
+            count = counts[i]
+            total = count[0] + count[1]
+            fraction = count[0]/total if total >= min_depth else -1
+            # mut_fractions[i].append(round(fraction, 2))
+            mut_fractions[i].append(round(fraction, 4))
+
+    mut_names = set()
+    mut_names = [n for n in names]
+    csv_headers = ['Mutation'] + [n + ' %' for n in sample_names]
+    csv_rows = []
+    for i in range(num_mutations):
+        sm = mut_fractions[i]
+        csv_rows.append([str(mut_names[i])] + [str(sm[j]) for j in range(len(sample_names))])
+    with open('sample_mutations.csv', 'w') as f:
+        f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 def find_mutants_in_bam(bam_path, mutations):
     import pysam
@@ -187,7 +210,7 @@ def mut_idx(mut):
 
 
 # def find_mutants(file_path, mutations_path, min_depth, not_in): #TODO: not in lineage
-def find_mutants(file_path, mutations_path, min_depth, save_img):
+def find_mutants(file_path, mutations_path, min_depth, save_img, csv):
     """
     Accepts either a bam file or a tab delimited  txt file like
     s1.bam  Sample 1
@@ -229,3 +252,5 @@ def find_mutants(file_path, mutations_path, min_depth, save_img):
   #  img_path = file_path.replace('.bam', '_{}_mutants.png'.format(mutants_name)) if save_img else None
     img_path = file_path.replace('.txt', '_{}_mutants.png'.format(mutants_name)) if save_img else None
     plot_mutations(sample_results, sample_names, min_depth, img_path)
+    if csv:
+        write_csv(sample_results, sample_names, min_depth)
