@@ -75,7 +75,7 @@ def print_mut_results(mut_results, min_depth):
     print('{}/{} mutations covered'.format(cov, len(mut_results)))
     print('{}/{} mutations detected'.format(mut_cov, len(mut_results)))
 
-def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
+def plot_mutations(sample_results, sample_names, min_depth, img_path):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns; sns.set_theme()
@@ -100,7 +100,7 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
             fraction = count[0]/total if total >= min_depth else -1
             # mut_fractions[i].append(round(fraction, 2))
             mut_fractions[i].append(round(fraction, 4))
-        return mut_fractions
+
     no_reads = np.array([[f == -1 for f in fractions] for fractions in mut_fractions])
 
 # get the tick label font size
@@ -144,7 +144,7 @@ def plot_mutations(sample_results, sample_names, min_depth, img_path=None):
     else:
         plt.show()
 
-def write_csv(sample_results, sample_names, min_depth):
+def write_csv(sample_results, sample_names, min_depth, home_lab, mutants_name):
     names = sample_results[0].keys()
     sample_counts = [[mut_results[mut] for mut in names] for mut_results in sample_results]
     num_mutations = len(names)
@@ -164,7 +164,7 @@ def write_csv(sample_results, sample_names, min_depth):
     for i in range(num_mutations):
         sm = mut_fractions[i]
         csv_rows.append([str(mut_names[i])] + [str(sm[j]) for j in range(len(sample_names))])
-    with open('sample_mutations.csv', 'w') as f:
+    with open('{0}_{1}_mutations.csv'.format(home_lab, mutants_name), 'w') as f:
         f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 def find_mutants_in_bam(bam_path, mutations):
@@ -219,6 +219,7 @@ def find_mutants(file_path, mutations_path, min_depth, save_img, csv):
 
     sample_results = []
     sample_names = []
+    home_lab = file_path.replace('.txt', '')
     lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
     print(lineages)
     if mutations_path in lineages:
@@ -250,7 +251,12 @@ def find_mutants(file_path, mutations_path, min_depth, save_img, csv):
 
     mutants_name = mutations_path.replace('.txt', '').replace('.', '')
   #  img_path = file_path.replace('.bam', '_{}_mutants.png'.format(mutants_name)) if save_img else None
-    img_path = file_path.replace('.txt', '_{}_mutants.png'.format(mutants_name)) if save_img else None
-    plot_mutations(sample_results, sample_names, min_depth, img_path)
+    if save_img:
+        img_path = file_path.replace('.txt', '_{}_mutations.png'.format(mutants_name))
+    else:
+        img_path=None
+
     if csv:
-        write_csv(sample_results, sample_names, min_depth)
+        write_csv(sample_results, sample_names, min_depth, home_lab, mutants_name)
+
+    plot_mutations(sample_results, sample_names, min_depth, img_path)
