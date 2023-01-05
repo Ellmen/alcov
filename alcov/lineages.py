@@ -41,7 +41,7 @@ def mut_in_col(pileupcolumn, mut):
     return muts, not_muts
 
 
-def write_csv(sample_results, sample_names):
+def write_csv(sample_results, sample_names, home_lab):
     lin_names = set()
     for sr in sample_results:
         for key in sr.keys():
@@ -53,7 +53,7 @@ def write_csv(sample_results, sample_names):
     for i in range(len(sample_names)):
         sr = sample_results[i]
         csv_rows.append([sample_names[i]] + [str(round(sr[n], 3)) if n in sr else '0' for n in lin_names])
-    with open('sample_lineages.csv', 'w') as f:
+    with open('{}_lineages.csv'.format(home_lab), 'w') as f:
         f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 
@@ -444,9 +444,10 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
             print(mut)
             print(diffs)
     img_path = file_path.replace('.txt', '.png') if save_img else None
+    home_lab = file_path.replace('.txt', '')
     if ts:
         plot_lineages_timeseries(sample_results, sample_names)
     else:
         plot_lineages(sample_results, sample_names, img_path, all_lins)
     if csv:
-        write_csv(sample_results, sample_names)
+        write_csv(sample_results, sample_names, home_lab)
