@@ -41,7 +41,7 @@ def mut_in_col(pileupcolumn, mut):
     return muts, not_muts
 
 
-def write_csv(sample_results, sample_names, home_lab):
+def write_csv(sample_results, sample_names):
     lin_names = set()
     for sr in sample_results:
         for key in sr.keys():
@@ -53,7 +53,7 @@ def write_csv(sample_results, sample_names, home_lab):
     for i in range(len(sample_names)):
         sr = sample_results[i]
         csv_rows.append([sample_names[i]] + [str(round(sr[n], 3)) if n in sr else '0' for n in lin_names])
-    with open('{}_lineages.csv'.format(home_lab), 'w') as f:
+    with open('sample_lineages.csv', 'w') as f:
         f.write('\n'.join(','.join(row) for row in [csv_headers] + csv_rows))
 
 
@@ -73,37 +73,47 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     # lin_fractions = np.array([[lin_results[lin]*100 if lin in lin_results else -1 for lin in names] for lin_results in sample_results]).T
     # no_reads = np.array([[f == -1 for f in fractions] for fractions in lin_fractions])
     # fig, ax = plt.subplots(figsize=(len(sample_names)/2,len(names)/2))
-    plt.figure(figsize=(16,9))
-    sns.heatmap(
+ 
+# get the tick label font size
+    fontsize_pt = plt.rcParams['ytick.labelsize']
+    dpi = 72.27  
+# comput the matrix height in points and inches
+    matrix_height_pt = fontsize_pt * (len(lin_fractions)+30)
+    matrix_height_in = matrix_height_pt / dpi
+# compute the required figure height 
+    top_margin = 0.10  # in percentage of the figure height
+    bottom_margin = 0.20 # in percentage of the figure height
+    figure_height = matrix_height_in / (1 - top_margin - bottom_margin)
+    figure_width = len(sample_names) * 2 + 5
+# build the figure instance with the desired height
+    fig, ax = plt.subplots(
+        figsize=(figure_width, figure_height), 
+        gridspec_kw=dict(top=1-top_margin, bottom=bottom_margin),
+)
+    ax = sns.heatmap(
         lin_fractions,
         annot=True,
-        annot_kws={'fontsize':7},
-        # mask=no_reads,
+    #   annot_kws={'fontsize':10},
+    #   mask=no_reads,
         cmap=sns.cm.rocket_r,
         xticklabels=sample_names,
         yticklabels=names,
         vmin=0,
         vmax=100,
-        square=True,
+    #   square=True,
         cbar_kws={'format': '%.0f%%'},
         fmt='.1f',
-        # cbar=False,
     )
     plt.xlabel('Frequency in sample')
-    plt.ylabel('SARS-CoV-2 lineage')
-    # plt.subplots_adjust(bottom=0.3, left=0.3)
-    # ax.figure.tight_layout()
-    # mng = plt.get_current_fig_manager()
-    # mng.frame.Maximize(True)
-    # plt.savefig(img_path, dpi=300)
+    plt.xticks(rotation=30, ha="right", rotation_mode="anchor")
+    plt.ylabel('SARS-CoV-2 Lineage')
     # plt.tight_layout()
     if img_path is not None:
         plt.subplots_adjust(bottom=0.3, left=0.3)
         plt.savefig(img_path, dpi=300)
     else:
         plt.show()
-
-
+    
 def plot_lineages_timeseries(sample_results, sample_names):
     from datetime import date
     import numpy as np
@@ -444,10 +454,9 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
             print(mut)
             print(diffs)
     img_path = file_path.replace('.txt', '.png') if save_img else None
-    home_lab = file_path.replace('.txt', '')
     if ts:
         plot_lineages_timeseries(sample_results, sample_names)
     else:
         plot_lineages(sample_results, sample_names, img_path, all_lins)
     if csv:
-        write_csv(sample_results, sample_names, home_lab)
+        write_csv(sample_results, sample_names)
