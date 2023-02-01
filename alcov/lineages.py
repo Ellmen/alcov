@@ -48,7 +48,7 @@ def write_csv(sample_results, sample_names, home_lab):
             lin_names.add(key)
     lin_names = [n for n in lin_names]
     lin_names.sort()
-    csv_headers = ['Sample name'] + [n + ' %' for n in lin_names]
+    csv_headers = ['Sample name'] + [n for n in lin_names]
     csv_rows = []
     for i in range(len(sample_names)):
         sr = sample_results[i]
