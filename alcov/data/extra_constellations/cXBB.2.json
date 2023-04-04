@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (CH.1.1-like)",
-    "description": "CH.1.1 lineage defining mutations",
+    "label": "Omicron (XBB.2-like)",
+    "description": "XBB.2 recombinant lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "CH.1.1"
+            "XBB.2"
         ],
         "WHO_label": "Omicron",
-	"mrca_lineage": "CH.1.1",
-        "lineage_name": "CH.1.1",
+	"mrca_lineage": "XBB.2",
+        "lineage_name": "XBB.2",
         "parent_lineage": "B.1.1.529",
         "representative_genome": ""
     },
     "tags": [
-        "CH.1.1"
+        "XBB.2"
     ],
     "sites": [
         "nuc:C241T",
@@ -73,7 +73,6 @@
         "nuc:A20055G",
         "nuc:C21618T",
         "nuc:G21987A",
-        "nuc:T22200G",
         "nuc:A22688G",
         "nuc:G22775A",
         "nuc:C26060T",
@@ -83,36 +82,35 @@
         "nuc:T27384C",
         "nuc:A29510C",
         "nuc:G15451A",
-        "nuc:T22917G",
         "nuc:C2790T",
         "nuc:A22786C",
+        "nuc:A22320G",
         "nuc:G22599C",
-        "nuc:A22893C",
+        "nuc:T22896C",
         "nuc:C25416T",
+        "nuc:C15738T",
         "nuc:T22942G",
-        "nuc:T22016C",
-        "nuc:C3796T",
-        "nuc:C3927T",
-        "nuc:C4586T",
-        "nuc:C5183T",
-        "nuc:A12444G",
-        "nuc:A22001G",
-        "nuc:C22033A",
-        "nuc:A22190G",
-        "nuc:G22331A",
+        "nuc:T16342C",
+        "nuc:T22200A",
         "nuc:G22577C",
+        "nuc:T23031C",
         "nuc:A26275G",
-        "nuc:C3857A",
-        "nuc:G18583A",
-        "nuc:A20741G",
-        "nuc:T23019C"	        
+        "nuc:T23019C",
+        "nuc:T15939C",
+        "nuc:A405G",
+        "nuc:T17859C",
+        "nuc:A19326G",
+        "nuc:T21810C",
+        "nuc:C22000A",
+        "nuc:C22109G",
+        "nuc:C22664A",
+        "nuc:G22895C"
     ],
     "note": "Unique mutations for sublineage",
     "rules": {
       "default": {
         "min_alt": 27,
         "max_ref": 3,
-        "spike:Q493":"alt",
         "n:P151":"ref",
         "nuc:G27788":"ref"
       },
