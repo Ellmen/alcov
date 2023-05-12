@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (CH.1.1-like)",
-    "description": "CH.1.1 lineage defining mutations",
+    "label": "Omicron (XBB.1.5.1-like)",
+    "description": "XBB.1.5.1 recombinant lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "CH.1.1"
+            "XBB.1.5.1"
         ],
         "WHO_label": "Omicron",
-	"mrca_lineage": "CH.1.1",
-        "lineage_name": "CH.1.1",
-        "parent_lineage": "B.1.1.529",
+	"mrca_lineage": "XBB.1.5.1",
+        "lineage_name": "XBB.1.5.1",
+        "parent_lineage": "BA.2",
         "representative_genome": ""
     },
     "tags": [
-        "CH.1.1"
+        "XBB.1.5.1"
     ],
     "sites": [
         "nuc:C241T",
@@ -70,18 +70,34 @@
         "nuc:C12880T",
         "nuc:G15451A",
         "nuc:C15714T",
+        "nuc:C15738T",
+        "nuc:T15939C",
+        "nuc:T16342C",
+        "nuc:T17124C",
         "nuc:C17410T",
+        "nuc:T17859C",
+        "nuc:A19326G",
         "nuc:C19955T",
         "nuc:A20055G",
         "nuc:C21618T",
+        "nuc:T21810C",
         "nuc:G21987A",
+        "nuc:C22000A",
+        "nuc:C22109G",
+        "nuc:T22200A",
+        "nuc:G22317T",
         "nuc:G22577C",
         "nuc:G22599C",
+        "nuc:C22664A",
         "nuc:A22688G",
         "nuc:G22775A",
         "nuc:A22786C",
+        "nuc:G22895C",
+        "nuc:T22896C",
         "nuc:T22942G",
+        "nuc:T23018C",
         "nuc:T23019C",
+        "nuc:T23031C",
         "nuc:C25416T",
         "nuc:C26060T",
         "nuc:A26275G",
@@ -89,30 +105,16 @@
         "nuc:G27382C",
         "nuc:A27383T",
         "nuc:T27384C",
+        "nuc:G27915T",
         "nuc:A29510C",
-        "nuc:T22917G",
-        "nuc:T22200G",
-        "nuc:C5183T",
-        "nuc:A22893C",
-        "nuc:A22001G",
-        "nuc:A12444G",
-        "nuc:G18583A",
-        "nuc:T22016C",
-        "nuc:C22033A",
-        "nuc:A22190G",
-        "nuc:G22331A",
-        "nuc:C3796T",
-        "nuc:C3857A",
-        "nuc:C3927T",
-        "nuc:C4586T",
-        "nuc:A20741G"	        
+        "nuc:A405G",
+        "nuc:C23280T"
     ],
     "note": "Unique mutations for sublineage",
     "rules": {
       "default": {
         "min_alt": 27,
         "max_ref": 3,
-        "spike:Q493":"alt",
         "n:P151":"ref",
         "nuc:G27788":"ref"
       },

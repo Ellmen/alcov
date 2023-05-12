@@ -1,21 +1,21 @@
 {
-    "label": "Omicron (CH.1.1-like)",
-    "description": "CH.1.1 lineage defining mutations",
+    "label": "Omicron (CH.1.1.3-like)",
+    "description": "CH.1.1.3 lineage defining mutations",
     "sources": [
     ],
     "type": "variant",
     "variant": {
         "Pango_lineages": [
-            "CH.1.1"
+            "CH.1.1.3"
         ],
         "WHO_label": "Omicron",
-	"mrca_lineage": "CH.1.1",
-        "lineage_name": "CH.1.1",
+	"mrca_lineage": "CH.1.1.3",
+        "lineage_name": "CH.1.1.3",
         "parent_lineage": "B.1.1.529",
         "representative_genome": ""
     },
     "tags": [
-        "CH.1.1"
+        "CH.1.1.3"
     ],
     "sites": [
         "nuc:C241T",
@@ -91,6 +91,7 @@
         "nuc:T27384C",
         "nuc:A29510C",
         "nuc:T22917G",
+        "nuc:T22325C",
         "nuc:T22200G",
         "nuc:C5183T",
         "nuc:A22893C",
