@@ -349,7 +349,7 @@ def find_lineages_in_bam(bam_path, return_data=False, min_depth=40, lineages=[],
     aa_mutations = [m for m in aa_mutations if m not in aa_blacklist]
     # lineages = ['Delta', 'BA.1']
     if len(lineages) == 0:
-        lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+        lineages = list(mut_lins['C241T'].keys()) # arbitrary
     if unique:
         aa_mutations = [mut for mut in aa_mutations if sum(mut_lins[mut][l] for l in lineages) == 1]
     mutations = parse_mutations(aa_mutations)

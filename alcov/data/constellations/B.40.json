@@ -1,0 +1,1 @@
+{"label": "Omicron (B.40-like)", "description": "B.40 lineage defining mutations", "sources": [], "tags": ["B.40"], "sites": ["G11083T", "C14805T", "A2480G", "C2558T", "G26144T"], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
