@@ -154,7 +154,7 @@ def get_constellations():
 
     data_paths = [
         './data/constellations/',
-        './data/extra_constellations/',
+#        './data/extra_constellations/',
     ]
 
     constellations = {}
@@ -171,14 +171,14 @@ def get_constellations():
          f.write('constellations = {}'.format(constellations))
     vocs = list(constellations.keys())
     # Remove non-specific lineages
-    constellations['Omicron (XE-like)'] += constellations['XE-parent1']
-    constellations['Omicron (XE-like)'] += constellations['XE-parent2']
-    for voc in constellations:
-        if 'Omicron' in voc:
-            constellations[voc] += constellations['Omicron (Unassigned)']
-    vocs.remove('Omicron (Unassigned)')
-    vocs.remove('XE-parent1')
-    vocs.remove('XE-parent2')
+#    constellations['Omicron (XE-like)'] += constellations['XE-parent1']
+#    constellations['Omicron (XE-like)'] += constellations['XE-parent2']
+#    for voc in constellations:
+#        if 'Omicron' in voc:
+#            constellations[voc] += constellations['Omicron (Unassigned)']
+#    vocs.remove('Omicron (Unassigned)')
+#    vocs.remove('XE-parent1')
+#    vocs.remove('XE-parent2')
     for voc in vocs:
         for mut_name in constellations[voc]:
             # if mut_name in blacklist:
