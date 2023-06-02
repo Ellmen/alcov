@@ -1,0 +1,1 @@
+{"label": "Omicron (B.1.1.348-like)", "description": "B.1.1.348 lineage defining mutations", "sources": [], "tags": ["B.1.1.348"], "sites": ["C241T", "C3037T", "C14408T", "A23403G", "G28881A", "G28882A", "G28883C", "C25521T", "C29870A"], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
