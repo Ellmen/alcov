@@ -220,7 +220,7 @@ def find_mutants(file_path, mutations_path, min_depth, save_img, csv):
     sample_results = []
     sample_names = []
     home_lab = file_path.replace('.txt', '')
-    lineages = list(mut_lins['S:N501Y'].keys()) # arbitrary
+    lineages = list(mut_lins['C241T'].keys()) # arbitrary
     print(lineages)
     if mutations_path in lineages:
         lin = mutations_path
