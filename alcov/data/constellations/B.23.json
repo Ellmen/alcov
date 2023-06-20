@@ -1,1 +1,1 @@
-{"label": "Omicron (B.23-like)", "description": "B.23 lineage defining mutations", "sources": [], "tags": ["B.23"], "sites": ["C20270T", "A29683T"], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
+{"label": "Omicron (B.23-like)", "description": "B.23 lineage defining mutations", "sources": [], "tags": ["B.23"], "sites": ["A29683T", "C20270T"], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
