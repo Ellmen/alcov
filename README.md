@@ -31,7 +31,7 @@ To install the development version, clone the repository and run
 
 ### Preprocessing
 
-Alcov expects a BAM file of reads aligned to the SARS-CoV-2 reference genome. For an example of how to process Illumina reads, check the `prep` directory.
+Alcov expects a BAM file of reads aligned to the SARS-CoV-2 reference genome. For an example of how to process Illumina reads, check the `prep` directory for a script named "prep.py" which outlines our current preprocessing pipeline, including the generation of a "samples.txt" file used by alcov "find_lineages" command. 
 
 ### Estimating relative abundance of variants of concern:
 
@@ -48,12 +48,17 @@ alcov find_lineages samples.txt
 Where `samples.txt` looks like:
 
 ```
-reads1.bam	Sample 1 name
-reads2.bam	Sample 2 name
+path/to/reads1.bam	Sample 1 name
+path/to/reads2.bam	Sample 2 name
 ...
 ```
+Example usage: To eastimate the relative abundance of lineages in a list of samples (samples.txt), while considering only positions with a minimum depth of 10 reads, the following command can be used. This will also save the heatmap as a .png image and the corresponding frequencies as a csv file.
 
-Optionally specify which VOCs to look for
+```
+alcov find_lineages --min_depth=10 --save_img=True --csv=True samples.txt
+```
+
+Optionally specify which VOCs to look for (Note: This will restrict alcov to only consider the lineages specified in this text file. Do not provide this file if you wish alcov to consider all lineages for which it has constellation files.)
 
 ```
 alcov find_lineages reads.bam lineages.txt
@@ -62,7 +67,6 @@ alcov find_lineages reads.bam lineages.txt
 Where `lineages.txt` looks like:
 
 ```
-Delta (AY.4-like)
 Omicron (BA.1-like)
 Omicron (BA.2-like)
 Omicron (BA.4-like)
@@ -82,7 +86,7 @@ Optionally show how predicted mutation rates agree with observed mutation rates
 alcov find_lineages --show_stacked=True reads.bam
 ```
 
-Use mutations which are found in multiple VOCs (can help for low coverage samples)
+Use mutations which are found in multiple VOCs (can help for low coverage samples) - This is now the default behaviour.
 
 ```
 alcov find_lineages --unique=False reads.bam

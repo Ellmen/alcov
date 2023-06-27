@@ -64,7 +64,7 @@ def plot_lineages(sample_results, sample_names, img_path=None, all_lins=False):
     names = set()
     for sr in sample_results:
         for key in sr.keys():
-            if sr[key] > 0.001 or all_lins:
+            if sr[key] > 0.01 or all_lins:
                 names.add(key)
     names = [n for n in names]
     names.sort()
