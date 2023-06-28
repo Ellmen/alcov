@@ -77,7 +77,7 @@ for lineage in lineages:
 
                         # Create the final JSON structure
                         json_data = {
-                            "label": "Omicron (" + lineage + "-like)",
+                            "label": lineage + "-like",
                             "description": f"{lineage} lineage defining mutations",
                             "sources": [],
                             "tags": [lineage],

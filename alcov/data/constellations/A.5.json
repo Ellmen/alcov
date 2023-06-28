@@ -1,0 +1,1 @@
+{"label": "A.5-like", "description": "A.5 lineage defining mutations", "sources": [], "tags": ["A.5"], "sites": ["C8782T", "C26088T", "T28144C"], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
