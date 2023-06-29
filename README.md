@@ -65,12 +65,13 @@ alcov find_lineages reads.bam lineages.txt
 ```
 
 Where `lineages.txt` looks like:
+Note: These lineages must be chosen from the list of lineages that alcov has constellation files for (updated weekly) found in "alcov/alcov/data/constellations/"
 
 ```
-Omicron (BA.1-like)
-Omicron (BA.2-like)
-Omicron (BA.4-like)
-Omicron (BA.5-like)
+BA.5-like
+BQ.1.1-like
+XBB-like
+XBB.1.5-like
 ...
 ```
 
