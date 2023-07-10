@@ -1,1 +1,1 @@
-{"label": "B.1.395-like", "description": "B.1.395 lineage defining mutations", "sources": [], "tags": ["B.1.395"], "sites": ["C241T", "C3037T", "C14408T", "A23403G", "C6990T"], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
+{"label": "B.1.395-like", "description": "B.1.395 lineage defining mutations", "sources": [], "tags": ["B.1.395"], "sites": ["C241T", "C3037T", "C14408T", "A23403G", "C6990T"], "note": "Unique mutations for sublineage"}

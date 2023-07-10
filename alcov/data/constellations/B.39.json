@@ -1,1 +1,1 @@
-{"label": "B.39-like", "description": "B.39 lineage defining mutations", "sources": [], "tags": ["B.39"], "sites": ["C14805T", "T17247C", "C9223T", "G26144T", "G11083T", "A1515G"], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
+{"label": "B.39-like", "description": "B.39 lineage defining mutations", "sources": [], "tags": ["B.39"], "sites": ["C14805T", "T17247C", "C9223T", "G26144T", "G11083T", "A1515G"], "note": "Unique mutations for sublineage"}

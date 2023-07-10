@@ -1,1 +1,1 @@
-{"label": "B-like", "description": "B lineage defining mutations", "sources": [], "tags": ["B"], "sites": [], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
+{"label": "B-like", "description": "B lineage defining mutations", "sources": [], "tags": ["B"], "sites": [], "note": "Unique mutations for sublineage"}

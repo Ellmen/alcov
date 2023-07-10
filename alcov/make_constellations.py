@@ -82,17 +82,7 @@ for lineage in lineages:
                             "sources": [],
                             "tags": [lineage],
                             "sites": nucleotide_mutations,
-                            "note": "Unique mutations for sublineage",
-                            "rules": {
-                                "default": {
-                                    "min_alt": "",
-                                    "max_ref": ""
-                                },
-                                "Probable": {
-                                    "min_alt": "",
-                                    "max_ref": ""
-                                }
-                            }
+                            "note": "Unique mutations for sublineage"
                         }
 
                         # Write data to JSON file
