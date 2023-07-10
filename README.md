@@ -52,7 +52,7 @@ path/to/reads1.bam	Sample 1 name
 path/to/reads2.bam	Sample 2 name
 ...
 ```
-Example usage: To eastimate the relative abundance of lineages in a list of samples (samples.txt), while considering only positions with a minimum depth of 10 reads, the following command can be used. This will also save the heatmap as a .png image and the corresponding frequencies as a csv file.
+Example usage: To estimate the relative abundance of lineages in a list of samples (samples.txt), while considering only positions with a minimum depth of 10 reads, the following command can be used. This will also save the heatmap as a .png image and the corresponding frequencies as a csv file.
 
 ```
 alcov find_lineages --min_depth=10 --save_img=True --csv=True samples.txt
