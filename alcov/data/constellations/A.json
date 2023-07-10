@@ -1,1 +1,1 @@
-{"label": "A-like", "description": "A lineage defining mutations", "sources": [], "tags": ["A"], "sites": ["T28144C", "C8782T"], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
+{"label": "A-like", "description": "A lineage defining mutations", "sources": [], "tags": ["A"], "sites": ["T28144C", "C8782T"], "note": "Unique mutations for sublineage"}

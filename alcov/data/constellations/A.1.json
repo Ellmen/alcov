@@ -1,1 +1,1 @@
-{"label": "A.1-like", "description": "A.1 lineage defining mutations", "sources": [], "tags": ["A.1"], "sites": ["T28144C", "C18060T", "C17747T", "A17858G", "C8782T"], "note": "Unique mutations for sublineage", "rules": {"default": {"min_alt": "", "max_ref": ""}, "Probable": {"min_alt": "", "max_ref": ""}}}
+{"label": "A.1-like", "description": "A.1 lineage defining mutations", "sources": [], "tags": ["A.1"], "sites": ["T28144C", "C18060T", "C17747T", "A17858G", "C8782T"], "note": "Unique mutations for sublineage"}
