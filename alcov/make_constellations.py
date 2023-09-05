@@ -23,7 +23,7 @@ response = requests.get(input_url)
 lines = response.text.splitlines()
 
 # Parse lineage list to exclude header, descriptions, and withdrawn lineages 
-values = [line.split()[0] for line in lines[1:] if not line.startswith("*")]
+values = [line.split()[0] for line in lines[1:] if line.strip() and not line.startswith("*")]
 
 # Write all lineage names to a file called lineages.txt
 with open(output_file, "w") as file:
