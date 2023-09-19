@@ -1,1 +1,1 @@
-{"label": "A.3-like", "description": "A.3 lineage defining mutations", "sources": [], "tags": ["A.3"], "sites": ["A29700G", "C8782T", "T26729C", "T490A", "C3177T", "T18736C", "C24034T", "G28077C", "T28144C"], "note": "Unique mutations for sublineage"}
+{"label": "A.3-like", "description": "A.3 lineage defining mutations", "sources": [], "tags": ["A.3"], "sites": ["T26729C", "C3177T", "T490A", "T18736C", "C24034T", "G28077C", "T28144C", "C8782T", "A29700G"], "note": "Unique mutations for sublineage"}
