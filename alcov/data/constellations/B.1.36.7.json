@@ -1,1 +1,1 @@
-{"label": "B.1.36.7-like", "description": "B.1.36.7 lineage defining mutations", "sources": [], "tags": ["B.1.36.7"], "sites": ["C22444T", "C241T", "C3037T", "C14408T", "A23403G", "C28854T", "C18877T", "G25563T", "C26735T", "A11211G"], "note": "Unique mutations for sublineage"}
+{"label": "B.1.36.7-like", "description": "B.1.36.7 lineage defining mutations", "sources": [], "tags": ["B.1.36.7"], "sites": ["C241T", "C3037T", "C14408T", "A23403G", "C28854T", "C18877T", "G25563T", "A11211G", "C26735T", "C22444T"], "note": "Unique mutations for sublineage"}
