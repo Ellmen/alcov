@@ -25,6 +25,9 @@ def plot_depths(sample_results, sample_names):
         'Log depth': depths
     }
     df = pd.DataFrame(data=d)
+    # Save the DataFrame to a CSV file
+    df.to_csv('depth_results.csv', index=False)
+    # Plotting code
     g = sns.FacetGrid(df, row="Sample", hue="Pool", height=1.7, aspect=8)
     g.map(sns.barplot, "Amplicon number", "Log depth", order=[str(i) for i in range(1,99)], hue_order=['Pool 1', 'Pool 2'])
     # plt.locator_params(axis='x', nbins=20)
