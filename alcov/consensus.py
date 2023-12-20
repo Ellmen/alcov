@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:09a8934cd3fcd6c0f503dd22cb776161bc206b80a3626f4755a40f7ccdcd29ab
-size 546
+# Note: Still in active development
+
+def consensus_from_bam(bam_path):
+    import pysam
+
+    samfile = pysam.Samfile(bam_path, "rb")
+
+    seq = ['N' for _ in range(29903)]
+
+    for pileupcolumn in samfile.pileup():
+        pos = pileupcolumn.pos
+        bases = {}
+        for pileupread in pileupcolumn.pileups:
+            qpos = pileupread.query_position
+            if qpos is None:
+                continue
+            base = pileupread.alignment.query_sequence[qpos]
+            seq[pos] = base
+    samfile.close()
+
+    print(''.join(seq))

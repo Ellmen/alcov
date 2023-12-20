@@ -1,3 +1,13 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:981a61d2b28559efececcf1a1b1cbc50331ff0698cb838252f1caf22dd82e3e3
-size 279
+from .convert_mutations import aa as convert_aa, nt as convert_nt
+
+
+def aa(mut):
+    nt_muts = convert_aa(mut)
+    for nt_mut in nt_muts:
+        print('{} causes {}'.format(nt_mut, mut))
+
+
+def nt(mut):
+    aa_mut = convert_nt(mut)
+    print('{} causes {}'.format(mut, aa_mut))
+
