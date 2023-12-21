@@ -42,7 +42,7 @@ for lineage in lineages:
 
 # Construct URL
     url1 = base_url + "/sample/aggregated?dateFrom=2022-01-01&nextcladePangoLineage=" + lineage
-    url3 = base_url + "/sample/aggregated?dateFrom=2021-01-01&pangoLineage=" + lineage
+    url3 = base_url + "/sample/aggregated?dateFrom=2022-01-01&pangoLineage=" + lineage
 
     try:
         # Send API request
