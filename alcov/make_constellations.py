@@ -41,8 +41,8 @@ for lineage in lineages:
     output_file = "data/constellations/" + lineage + ".json"
 
 # Construct URL
-    url1 = base_url + "/sample/aggregated?dateFrom=2022-01-01&nextcladePangoLineage=" + lineage
-    url3 = base_url + "/sample/aggregated?dateFrom=2022-01-01&pangoLineage=" + lineage
+    url1 = base_url + "/sample/aggregated?dateFrom=2021-01-01&nextcladePangoLineage=" + lineage
+    url3 = base_url + "/sample/aggregated?dateFrom=2021-01-01&pangoLineage=" + lineage
 
     try:
         # Send API request
