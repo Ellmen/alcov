@@ -452,10 +452,10 @@ def find_lineages(file_path, lineages_path, ts, csv, min_depth, show_stacked, un
         if abs(sum(diffs)/len(diffs)) > 0.1:
             print(mut)
             print(diffs)
+    if csv:
+        write_csv(sample_results, sample_names, home_lab)
     img_path = file_path.replace('.txt', '.png') if save_img else None
     if ts:
         plot_lineages_timeseries(sample_results, sample_names)
     else:
         plot_lineages(sample_results, sample_names, img_path, all_lins)
-    if csv:
-        write_csv(sample_results, sample_names, home_lab)
