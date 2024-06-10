@@ -30,7 +30,7 @@ with open(output_file, "w") as file:
     file.write("\n".join(values))
     file.close()  # Close the file to ensure data is written to disk
 
-base_url = "https://lapis.cov-spectrum.org/open/v1"
+base_url = "https://lapis.cov-spectrum.org/open/v2"
 
 # Read lineage list
 with open("lineages.txt", "r") as file:
@@ -67,7 +67,7 @@ for lineage in lineages:
             if count1 > 100:
 
                 # Construct URL
-                url2 = base_url + "/sample/nuc-mutations?nextcladePangoLineage=" + lineage
+                url2 = base_url + "/sample/nucleotideMutations?nextcladePangoLineage=" + lineage
 
                 try:
                     # Send API request
@@ -106,7 +106,7 @@ for lineage in lineages:
             elif count3 > 100:
 
                 # Construct URL
-                url4 = base_url + "/sample/nuc-mutations?pangoLineage=" + lineage
+                url4 = base_url + "/sample/nucleotideMutations?pangoLineage=" + lineage
 
                 try:
                     # Send API request
