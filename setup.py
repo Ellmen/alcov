@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='alcov',
-    version='1.1.32',
+    version='1.1.33',
     description='Identify frequencies of concerning mutations from aligned reads',
     long_description=long_description,
     long_description_content_type='text/markdown',
