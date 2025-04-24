@@ -191,8 +191,8 @@ def get_constellations():
                 mutations[mut_name] = {voc: 0 for voc in vocs}
             mutations[mut_name][voc] = 1
     with open('mutations.py', 'w') as f:
-         f.write('mutations = {}'.format(mutations))
-
+         # f.write('mutations = {}'.format(mutations))
+         f.write('mutations = ' + json.dumps(mutations, separators=(',', ':')))
 
 if __name__ == '__main__':
     # process_reference()
