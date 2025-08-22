@@ -1,147 +1,145 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed May 31 2023
-
-@author: Jenn Knapp
-email: jknapp@uwaterloo.ca
-"""
-"""
-Purpose: Retrieve lineage-definining mutations from Cov-Spectrum for all lineages that have deposited sequences
-
-Reguires:
-lineages.txt (All lineages listed when searching CoV-Spectrum with the params World, AllTimes, and blank search bar)
-
-"""
 import requests
 import json
+import time
+import os
+from tqdm import tqdm  # progress bar
 
-# Download master lineage list from cov-lineages pango-designation (updated regularly as new lineages arise)
+# Global settings
+BASE_URL = "https://lapis.cov-spectrum.org/open/v2"
+HEADERS = {
+    "User-Agent": "Mozilla/5.0",
+    "Accept": "application/json",
+}
+DATA_DIR = "data/constellations"
+os.makedirs(DATA_DIR, exist_ok=True)
+
+FAILED_FILE = "omitted_lineages.txt"
+FAILED_LINEAGES = set()
+
+# Load any previously failed lineages
+if os.path.exists(FAILED_FILE):
+    with open(FAILED_FILE, "r") as f:
+        FAILED_LINEAGES = set(f.read().splitlines())
+    print(f"🔄 Loaded {len(FAILED_LINEAGES)} previously failed lineages.")
+
+
+def safe_get(url, lineage, retries=3, delay=5, timeout=20):
+    """Make a GET request with retries and error handling. Logs failed lineages."""
+    for attempt in range(1, retries + 1):
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=timeout)
+            r.raise_for_status()
+            data = r.json()
+
+            # API-level error
+            if "error" in data:
+                detail = data["error"].get("detail", "Unknown error")
+                print(f"❌ API error for {lineage}: {detail}")
+
+                # If lineage is not valid, record & skip permanently
+                if "not a valid lineage" in detail:
+                    FAILED_LINEAGES.add(lineage)
+                    return None
+
+                # Otherwise retry if attempts remain
+                elif attempt < retries:
+                    time.sleep(delay)
+                    continue
+                else:
+                    FAILED_LINEAGES.add(lineage)
+                    return None
+
+            return r
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ Attempt {attempt} for {lineage} at {url} failed: {e}")
+            time.sleep(delay)
+
+    FAILED_LINEAGES.add(lineage)
+    return None
+
+
+# Download master lineage list from cov-lineages pango-designation
 input_url = "https://raw.githubusercontent.com/cov-lineages/pango-designation/master/lineage_notes.txt"
-output_file = "lineages.txt"
-
 response = requests.get(input_url)
-lines = response.text.splitlines()
-
-# Parse lineage list to exclude header, descriptions, and withdrawn lineages 
-values = [line.split()[0] for line in lines[1:] if line.strip() and not line.startswith("*")]
-
-# Write all lineage names to a file called lineages.txt
-with open(output_file, "w") as file:
-    file.write("\n".join(values))
-    file.close()  # Close the file to ensure data is written to disk
-
-base_url = "https://lapis.cov-spectrum.org/open/v2"
+if response:
+    lines = response.text.splitlines()
+    values = [line.split()[0] for line in lines[1:] if line.strip() and not line.startswith("*")]
+    with open("lineages.txt", "w") as file:
+        file.write("\n".join(values))
+        file.close()
+else:
+    raise RuntimeError("Failed to download lineage list.")
 
 # Read lineage list
 with open("lineages.txt", "r") as file:
     lineages = file.read().splitlines()
 
-# Iterate over lineages
-for lineage in lineages:
-    output_file = "data/constellations/" + lineage + ".json"
+# Filter out previously failed lineages
+lineages = [l for l in lineages if l not in FAILED_LINEAGES]
 
-# Construct URL
-    url1 = base_url + "/sample/aggregated?dateFrom=2022-01-01&nextcladePangoLineage=" + lineage
-    url3 = base_url + "/sample/aggregated?dateFrom=2022-01-01&pangoLineage=" + lineage
+# Iterate over lineages with progress bar
+for lineage in tqdm(lineages, desc="Processing lineages", unit="lineage"):
+    output_file = os.path.join(DATA_DIR, f"{lineage}.json")
+
+    url1 = f"{BASE_URL}/sample/aggregated?dateFrom=2022-01-01&nextcladePangoLineage={lineage}"
+    url3 = f"{BASE_URL}/sample/aggregated?dateFrom=2022-01-01&pangoLineage={lineage}"
+
+    response1 = safe_get(url1, lineage)
+    response3 = safe_get(url3, lineage)
+
+    if not response1 or not response3:
+        continue
 
     try:
-        # Send API request
-        response1 = requests.get(url1)
+        data1 = response1.json()
+        data3 = response3.json()
+        count1 = data1["data"][0]["count"] if data1["data"] else 0
+        count3 = data3["data"][0]["count"] if data3["data"] else 0
+    except Exception:
+        FAILED_LINEAGES.add(lineage)
+        continue
 
-        # Check if the request was successful (status code 200)
-        if response1.status_code == 200:
-            # Parse the response as JSON
-            data1 = response1.json()
-        
-        # Send API request
-        response3 = requests.get(url3)
-       
-        if response1.status_code == 200:
-            # Parse the response as JSON
-            data3 = response3.json()
+    nucleotide_mutations = []
 
-            # Extract the required data from the JSON response
-            count1 = data1["data"][0]["count"]
-            count3 = data3["data"][0]["count"]
+    if count1 > 100:
+        url2 = f"{BASE_URL}/sample/nucleotideMutations?nextcladePangoLineage={lineage}"
+        response2 = safe_get(url2, lineage)
+        if response2:
+            data = response2.json()
+            nucleotide_mutations = [
+                m["mutation"] for m in data.get("data", [])
+                if m.get("proportion", 0) > 0.90 and not m["mutation"].endswith("-")
+            ]
 
-            if count1 > 100:
+    elif count3 > 100:
+        url4 = f"{BASE_URL}/sample/nucleotideMutations?pangoLineage={lineage}"
+        response4 = safe_get(url4, lineage)
+        if response4:
+            data = response4.json()
+            nucleotide_mutations = [
+                m["mutation"] for m in data.get("data", [])
+                if m.get("proportion", 0) > 0.90 and not m["mutation"].endswith("-")
+            ]
 
-                # Construct URL
-                url2 = base_url + "/sample/nucleotideMutations?nextcladePangoLineage=" + lineage
+    if not nucleotide_mutations:
+        continue
 
-                try:
-                    # Send API request
-                    response = requests.get(url2)
+    json_data = {
+        "label": lineage + "-like",
+        "description": f"{lineage} lineage defining mutations",
+        "sources": [],
+        "tags": [lineage],
+        "sites": nucleotide_mutations,
+        "note": "Unique mutations for sublineage",
+    }
 
-                    # Check if the request was successful (status code 200)
-                    if response.status_code == 200:
-                        # Parse the response as JSON
-                        data = response.json()
+    with open(output_file, "w") as file:
+        json.dump(json_data, file)
 
-                        # Extract the required data from the JSON response
-                        nucleotide_mutations = [
-                            mutation["mutation"] for mutation in data["data"]
-                            if mutation["proportion"] > 0.90 and not mutation["mutation"].endswith("-")
-                        ]
-
-                        # Create the final JSON structure
-                        json_data = {
-                            "label": lineage + "-like",
-                            "description": f"{lineage} lineage defining mutations",
-                            "sources": [],
-                            "tags": [lineage],
-                            "sites": nucleotide_mutations,
-                            "note": "Unique mutations for sublineage"
-                        }
-
-                        # Write data to JSON file
-                        with open(output_file, "w") as file:
-                            json.dump(json_data, file)
-                    else:
-                        print("Error occurred while fetching data for lineage:", lineage)
-         
-                except requests.RequestException as e:
-                        print("An error occurred during the API request:", str(e))
-
-            elif count3 > 100:
-
-                # Construct URL
-                url4 = base_url + "/sample/nucleotideMutations?pangoLineage=" + lineage
-
-                try:
-                    # Send API request
-                    response = requests.get(url4)
-
-                    # Check if the request was successful (status code 200)
-                    if response.status_code == 200:
-                        # Parse the response as JSON
-                        data = response.json()
-
-                        # Extract the required data from the JSON response
-                        nucleotide_mutations = [
-                            mutation["mutation"] for mutation in data["data"]
-                            if mutation["proportion"] > 0.90 and not mutation["mutation"].endswith("-")
-                        ]
-
-                        # Create the final JSON structure
-                        json_data = {
-                            "label": lineage + "-like",
-                            "description": f"{lineage} lineage defining mutations",
-                            "sources": [],
-                            "tags": [lineage],
-                            "sites": nucleotide_mutations,
-                            "note": "Unique mutations for sublineage"
-                        }
-
-                        # Write data to JSON file
-                        with open(output_file, "w") as file:
-                            json.dump(json_data, file)
-                    else:
-                        print("Error occurred while fetching data for lineage:", lineage)
-         
-                except requests.RequestException as e:
-                        print("An error occurred during the API request:", str(e))
-
-    except requests.RequestException as e:
-        print("An error occurred during the API request:", str(e))
-
+# --- Write out all failed lineages ---
+if FAILED_LINEAGES:
+    with open(FAILED_FILE, "w") as f:
+        f.write("\n".join(sorted(FAILED_LINEAGES)))
+    print(f"\n❗ Saved {len(FAILED_LINEAGES)} failed lineages to {FAILED_FILE}")
+else:
+    print("\n✅ No failed lineages detected")
